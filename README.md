@@ -31,7 +31,7 @@ Este proyecto tiene la siguente estructura y se está trabajando con maeven.
 
 El proyecto utiliza las siguientes dependencias, también adjunto links de descarga.
 
-- [Connector-J](https://dev.mysql.com/downloads/connector/j/) Conexión a la base de datos
+- Connector-J Conexión a la base de datos
 - [maeven](https://maven.apache.org/install.html) Gestión del proyecto
 - vaadin para crear la GUI
 
@@ -40,7 +40,7 @@ El proyecto utiliza las siguientes dependencias, también adjunto links de desca
 - En su archivo pom.xml deberá agregar connector-j y vaadin con las versiones que necesite
 - [CONNECTOR-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j)
 - [VAADIN](https://central.sonatype.com/artifact/com.vaadin/vaadin)
-- Debe tener instalado Maven en su computadora
+- Debe tener instalado [Maven](https://maven.apache.org/download.cgi) en su computadora
 - Debe tener instalado Java 8 o superior
 
 ### EXPLICACIÓN PARA CONFIGURACIÓN DE VARIABLES DE ENTORNO Y MAVEN
