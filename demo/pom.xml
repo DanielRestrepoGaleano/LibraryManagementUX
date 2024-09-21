@@ -25,16 +25,9 @@
         <!-- Dependencia de Vaadin -->
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-bom</artifactId>
-            <version>14.1.3</version>
-            <type>pom</type>
-            <scope>import</scope>
+            <artifactId>vaadin</artifactId>
+            <version>24.4.12</version>
         </dependency>
-        <dependency>
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin</artifactId>
-    <version>24.4.12</version>
-</dependency>
-    </dependencies> <!-- Add this closing tag -->
+    </dependencies>
 
 </project>
