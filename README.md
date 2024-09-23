@@ -34,23 +34,28 @@ Este proyecto tiene la siguente estructura y se está trabajando con maeven.
 
 El proyecto utiliza las siguientes dependencias, también adjunto links de descarga.
 
-- Connector-J Conexión a la base de datos
+- [Connector-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j) Conexión a la base de datos
 - [maeven](https://maven.apache.org/install.html) Gestión del proyecto
-- JavaFX para crear la interfaz de usuario
+- [JavaFX](https://gluonhq.com/products/javafx/) para crear la interfaz de usuario
+  Además está utilizando el gestor de la base de datos MySQL.
+  Está utilizando el servidor local de Apache y el local host de phpMyAdmin.
+  por lo tanto debe tener instalado [XAMPP](https://www.apachefriends.org/es/index.html)
 
 ## INSTALACIÓN Y REQUISITOS
 
-- En su archivo pom.xml deberá agregar connector-j y vaadin con las versiones que necesite
+- En su archivo pom.xml deberá agregar connector-j y javaFX con las versiones que necesite
 - [CONNECTOR-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j)
 - [javaFX](https://gluonhq.com/products/javafx/) asegurese de descargar el SDK
 - Debe tener instalado [Maven](https://maven.apache.org/download.cgi) en su computadora
 - Debe tener instalado Java 8 o superior (java 17 recomendado)
+- Debe tener instalado [XAMPP](https://www.apachefriends.org/es/index.html)
 
 ### EXPLICACIÓN PARA CONFIGURACIÓN DE VARIABLES DE ENTORNO Y MAVEN
 
 **En windows, si no tiene las variables de entorno configuradas deberá hacerlo de la sigiente forma.**
 **Por ahora todo el proyecto se está configurando por medio de windows, si usted usa otro Sistema Operativo deberá buscar los recursos en la red para adaptar el proyecto**
 
+0. - En la barra de búsqueda de windows escribir *Advanced* allí verá la opciones de las configuraciones avanzadas para las variables de entorno
 1. - Abrir la configuración avanzada del sistema
 2. - Ir a *variables de entorno*
 3. - Ir a *variables de entorno* para el sistema
