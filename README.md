@@ -6,6 +6,8 @@ Todo se está realizando mediante el editor de texto *VS code*
 **NOTA**
 Aún se están realizando cambios y configuraciones del espacio de trabajo, por lo tanto unicamente verá los archivos .json, .xml y .md  que se están utilizando para la configuración del proyecto. Más adelante se subirán las clases necesarias para que todo funcione
 
+## IMPORTANTE
+AÚN PUEDE CONTENER FALLOS, SI ENCUENTRA POR FAVOR REPORTAR
 
 ## Tabla de contenido
 
