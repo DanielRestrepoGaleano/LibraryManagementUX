@@ -108,7 +108,7 @@ public class ConexionBD {
                             rs.getInt("numPaginas"),
                             rs.getBoolean("disponible"),
                             rs.getString("isbn"),
-                            rs.getString("descripcion"));
+                            rs.getString("descripcion"), id);
                 }
             }
         }
@@ -342,6 +342,7 @@ public class ConexionBD {
                             rs.getBoolean("disponible"),
                             rs.getString("isbn"),
                             "" // descripcion no incluida
+                            , 0
                     );
                     resultados.add(libro);
                 }
@@ -487,5 +488,21 @@ public static List<Map<String, Object>> buscarUsuarioYLibrosPrestados(String nom
     return resultados;
 }
 
+public static void crearLibrosMultiples(Libro libro) throws SQLException {
+    String query = "INSERT INTO libros (titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        for (int i = 0; i < libro.getCantidad(); i++) {
+            pstmt.setString(1, libro.getTitulo());
+            pstmt.setString(2, libro.getAutor());
+            pstmt.setInt(3, libro.getfechaPublicacion());
+            pstmt.setInt(4, libro.getNumPaginas());
+            pstmt.setBoolean(5, libro.isDisponible());
+            pstmt.setString(6, libro.getIsbn());
+            pstmt.setString(7, libro.getDescripcion());
+            pstmt.executeUpdate();
+        }
+    }
+}
 
 }
