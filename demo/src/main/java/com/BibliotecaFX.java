@@ -162,6 +162,8 @@ public class BibliotecaFX extends Application {
         TextField fechaPublicacionField = new TextField();
         TextField numPaginasField = new TextField();
         TextArea descripcionArea = new TextArea();
+        TextField cantidadField = new TextField();
+        cantidadField.setPromptText("Cantidad de copias");
 
         dialog.getDialogPane().setContent(new VBox(8,
                 new Label("Título:"), tituloField,
@@ -169,7 +171,8 @@ public class BibliotecaFX extends Application {
                 new Label("ISBN:"), isbnField,
                 new Label("Fecha de Publicación:"), fechaPublicacionField,
                 new Label("Número de Páginas:"), numPaginasField,
-                new Label("Descripción:"), descripcionArea));
+                new Label("Descripción:"), descripcionArea,
+                new Label("Cantidad de copias:"), cantidadField));
 
         ButtonType agregarButtonType = new ButtonType("Agregar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(agregarButtonType, ButtonType.CANCEL);
@@ -179,11 +182,12 @@ public class BibliotecaFX extends Application {
                 try {
                     int fechaPublicacion = Integer.parseInt(fechaPublicacionField.getText());
                     int numPaginas = Integer.parseInt(numPaginasField.getText());
+                    int cantidad = Integer.parseInt(cantidadField.getText());
                     return new Libro(0, tituloField.getText(), autorField.getText(), fechaPublicacion,
-                            numPaginas, true, isbnField.getText(), descripcionArea.getText());
+                            numPaginas, true, isbnField.getText(), descripcionArea.getText(), cantidad);
                 } catch (NumberFormatException e) {
                     mostrarError("Error",
-                            "Por favor, ingrese números válidos para la fecha de publicación y el número de páginas.");
+                            "Por favor, ingrese números válidos para la fecha de publicación, el número de páginas y la cantidad.");
                     return null;
                 }
             }
@@ -193,14 +197,14 @@ public class BibliotecaFX extends Application {
         Optional<Libro> result = dialog.showAndWait();
         result.ifPresent(libro -> {
             try {
-                ConexionBD.crearLibro(libro);
+                ConexionBD.crearLibrosMultiples(libro);
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Éxito");
                 alert.setHeaderText(null);
-                alert.setContentText("Libro agregado correctamente.");
+                alert.setContentText("Libros agregados correctamente.");
                 alert.showAndWait();
             } catch (SQLException e) {
-                mostrarError("Error", "No se pudo agregar el libro: " + e.getMessage());
+                mostrarError("Error", "No se pudieron agregar los libros: " + e.getMessage());
             }
         });
     }
@@ -266,7 +270,7 @@ public class BibliotecaFX extends Application {
                                 int numPaginas = Integer.parseInt(numPaginasField.getText());
                                 return new Libro(libroId, tituloField.getText(), autorField.getText(), fechaPublicacion,
                                         numPaginas, libro.isDisponible(), isbnField.getText(),
-                                        descripcionArea.getText());
+                                        descripcionArea.getText(), numPaginas);
                             } catch (NumberFormatException e) {
                                 mostrarError("Error",
                                         "Por favor, ingrese números válidos para la fecha de publicación y el número de páginas.");

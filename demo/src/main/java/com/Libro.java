@@ -28,44 +28,44 @@ public class Libro {
     private static boolean disponible;
     private String isbn;
     private String descripcion;
+    private int cantidad;
 
     
     // Este es un constructor para la clase `Libro` en Java. Inicializa una nueva instancia de la clase `Libro`
     // con los parámetros proporcionados: `titulo`, `autor`, `fechaPublicacion`, `numPaginas`,
     // `disponible`, `isbn` y `descripcion`.
-    public Libro(String titulo, String autor, int fechaPublicacion, int numPaginas, boolean disponible,
-            String isbn, String descripcion) {
-        this.id = nextTempId++;
-        this.titulo = titulo;
-        this.autor = autor;
-        this.fechaPublicacion = fechaPublicacion;
-        this.numPaginas = numPaginas;
-        this.disponible = disponible;
-        this.isbn = isbn;
-        this.descripcion = descripcion;
-    }
+    
+    
 
     // Constructor existente para cuando ya tenemos un ID (por ejemplo, al leer de
     // la BD)
 
   // Este constructor particular en la clase `Libro` se utiliza cuando se crea una nueva instancia de un libro
   // (`Libro`) objeto con un ID existente.
-    public Libro(int id, String titulo, String autor, int fechaPublicacion, int numPaginas, boolean disponible,
-            String isbn, String descripcion) {
-        this.id = id;
-        this.titulo = titulo;
-        this.autor = autor;
-        this.fechaPublicacion = fechaPublicacion;
-        this.numPaginas = numPaginas;
-        this.disponible = disponible;
-        this.isbn = isbn;
-        this.descripcion = descripcion;
+  public Libro(int id, String titulo, String autor, int fechaPublicacion, int numPaginas, boolean disponible, String isbn, String descripcion, int cantidad) {
+    this.id = id;
+    this.titulo = titulo;
+    this.autor = autor;
+    this.fechaPublicacion = fechaPublicacion;
+    this.numPaginas = numPaginas;
+    this.disponible = disponible;
+    this.isbn = isbn;
+    this.descripcion = descripcion;
+    this.cantidad = cantidad;
 
         // Asegurarse de que nextTempId siempre sea mayor que cualquier ID existente
         if (id >= nextTempId) {
             nextTempId = id + 1;
         }
     }
+
+    public int getCantidad() {
+    return cantidad;
+}
+
+public void setCantidad(int cantidad) {
+    this.cantidad = cantidad;
+}
 
     private static final Logger LOGGER = Logger.getLogger(Libro.class.getName());
 
@@ -224,7 +224,7 @@ public class Libro {
                 String isbn = partes[5];
                 String descripcion = partes[6];
 
-                return new Libro(titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion);
+                return new Libro(numPaginas, titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion, numPaginas);
             } catch (NumberFormatException e) {
                 LOGGER.warning("Error al convertir datos numéricos en la línea: " + texto);
                 LOGGER.warning("Mensaje de error: " + e.getMessage());
