@@ -81,7 +81,7 @@ public class BibliotecaFX extends Application {
         /* Cargar imagen */
         ImageView imageView = null;
         try {
-            Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/Thumbsup1.png"));
+            Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/demo/src/main/resources/Thumbsup1.png"));
             imageView = new ImageView(image);
             imageView.setFitWidth(100); // Ajusta el tamaño de la imagen
             imageView.setPreserveRatio(true);
