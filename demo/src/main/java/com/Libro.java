@@ -2,12 +2,16 @@ package com;
 
 import java.util.Scanner;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+
+
 import java.util.logging.LogRecord;
 
 @SuppressWarnings("unused")
@@ -29,6 +33,8 @@ public class Libro {
     private String isbn;
     private String descripcion;
     private int cantidad;
+    private java.sql.Date fechaPrestamo;
+    private Date fechaDevolucion;
 
     
     // Este es un constructor para la clase `Libro` en Java. Inicializa una nueva instancia de la clase `Libro`
@@ -52,6 +58,8 @@ public class Libro {
     this.isbn = isbn;
     this.descripcion = descripcion;
     this.cantidad = cantidad;
+    this.fechaDevolucion = fechaDevolucion;
+    this.fechaPrestamo = fechaPrestamo;
 
         // Asegurarse de que nextTempId siempre sea mayor que cualquier ID existente
         if (id >= nextTempId) {
@@ -61,6 +69,21 @@ public class Libro {
 
     public int getCantidad() {
     return cantidad;
+}
+public Date getFechaPrestamo() {
+    return fechaPrestamo;
+}
+
+public void setFechaPrestamo(java.sql.Date date) {
+    this.fechaPrestamo = date;
+}
+
+public Date getFechaDevolucion() {
+    return fechaDevolucion;
+}
+
+public void setFechaDevolucion(java.sql.Date date) {
+    this.fechaDevolucion = date;
 }
 
 public void setCantidad(int cantidad) {
