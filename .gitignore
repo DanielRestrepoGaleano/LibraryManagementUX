@@ -1,3 +1,4 @@
-/target/
-*.jar
+demo/target/
+*.jar 
 *.7z
+demo/target.7z
