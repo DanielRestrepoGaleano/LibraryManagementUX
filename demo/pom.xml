@@ -7,7 +7,7 @@
   
   <build>
     <plugins>
-      <!-- JavaFX Plugin. -->
+      <!-- JavaFX Plugin.. -->
       <plugin>
         <artifactId>javafx-maven-plugin</artifactId>
         <groupId>org.openjfx</groupId>
