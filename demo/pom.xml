@@ -50,6 +50,16 @@
       <version>8.0.33</version>
     </dependency>
     <dependency>
+      <artifactId>poi-ooxml</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>5.2.2</version>
+    </dependency>
+    <dependency>
+      <artifactId>poi</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>5.2.2</version>
+    </dependency>
+    <dependency>
       <artifactId>spring-boot-starter</artifactId>
       <groupId>org.springframework.boot</groupId>
       <version>3.1.2</version>

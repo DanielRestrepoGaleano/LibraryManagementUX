@@ -59,13 +59,13 @@ public class Usuario {
     }
 
     public boolean esAdministrador() {
-        return esAdministrador;
+        return this.esAdministrador;
     }
 
     public void setEsAdministrador(boolean esAdministrador) {
         this.esAdministrador = esAdministrador;
     }
-
+   
 
   /**
      * El método `toString` en Java sobrescribe la implementación predeterminada para devolver una representación de cadena

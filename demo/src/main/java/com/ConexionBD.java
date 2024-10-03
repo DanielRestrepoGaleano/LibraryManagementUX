@@ -115,6 +115,43 @@ public class ConexionBD {
         return null;
     }
 
+
+    public static List<Libro> buscarLibrosPrestados(String documento) throws SQLException {
+        List<Libro> libros = new ArrayList<>();
+        Connection conn = getConnection();
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = false");
+        pstmt.setString(1, documento);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            Libro libro = new Libro(0, documento, documento, 0, 0, false, documento, documento, 0);
+            libro.setTitulo(rs.getString("titulo_libro"));
+            libro.setAutor(rs.getString("autor_libro"));
+            libro.setIsbn(rs.getString("isbn_libro"));
+            libro.setFechaPrestamo(rs.getDate("fecha_prestamo"));
+            libros.add(libro);
+        }
+        conn.close();
+        return libros;
+    }
+
+    public static List<Libro> buscarLibrosDevolvidos(String documento) throws SQLException {
+        List<Libro> libros = new ArrayList<>();
+        Connection conn = getConnection();
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = true");
+        pstmt.setString(1, documento);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            Libro libro = new Libro(0, documento, documento, 0, 0, false, documento, documento, 0);
+            libro.setTitulo(rs.getString("titulo_libro"));
+            libro.setAutor(rs.getString("autor_libro"));
+            libro.setIsbn(rs.getString("isbn_libro"));
+            libro.setFechaDevolucion(rs.getDate("fecha_devolucion"));
+            libros.add(libro);
+        }
+        conn.close();
+        return libros;
+    }
+
     /**
      * El método `actualizarLibro` actualiza un registro de libro en una tabla de
      * base de datos con la

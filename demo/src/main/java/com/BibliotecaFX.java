@@ -15,6 +15,7 @@ import javafx.util.Pair;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,6 +26,12 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class BibliotecaFX extends Application {
 
@@ -51,13 +58,13 @@ public class BibliotecaFX extends Application {
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
 
-        Button[] botones = new Button[10];
+        
         String[] opciones = {
-                "Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
-                "Cambiar estado de libro", "Cerrar sesión", "Realizar préstamo",
-                "Buscar libros", "Devolver Libro", "Buscar usuario y libros prestados"
+            "Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
+            "Cambiar estado de libro", "Cerrar sesión", "Realizar préstamo", "Buscar libros",
+            "Devolver libro", "Buscar prestamo por usuario" , "Exportar a Excel"
         };
-
+        Button[] botones = new Button[opciones.length];
         for (int i = 0; i < botones.length; i++) {
             int index = i;
             botones[i] = new Button(opciones[i]);
@@ -65,13 +72,13 @@ public class BibliotecaFX extends Application {
                 try {
                     manejarOpcion(index);
                 } catch (SQLException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             });
             botones[i].setMaxWidth(Double.MAX_VALUE);
         }
-
+        
+        /* Cargar imagen */
         ImageView imageView = null;
         try {
             Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/Thumbsup1.png"));
@@ -81,20 +88,18 @@ public class BibliotecaFX extends Application {
         } catch (FileNotFoundException e) {
             mostrarError("Error de imagen", "No se pudo cargar la imagen de Duke.");
         }
-
-        root.getChildren().addAll(botones);
-
+        
         if (imageView != null) {
             root.getChildren().add(imageView); // Añadir la imagen debajo de los botones
         }
+        root.getChildren().addAll(botones);
         Scene scene = new Scene(root, 300, 500);
         primaryStage.setTitle("Biblioteca");
         primaryStage.setScene(scene);
         primaryStage.show();
-
+        
         mostrarLoginDialog();
     }
-
     private void manejarOpcion(int opcion) throws SQLException {
 
         switch (opcion) {
@@ -128,10 +133,93 @@ public class BibliotecaFX extends Application {
             case 9:
                 buscarUsuarioYLibrosPrestados();
                 break;
+            case 10:
+                exportarExcel();
+                break;
         }
 
     }
 
+    private void exportarExcel() {
+        try {
+            // Obtener los datos del usuario
+            String documento = usuarioActual.getDocumento();
+            String nombre = usuarioActual.getNombreUsuario();
+    
+            // Obtener los libros prestados y devueltos
+            List<Libro> librosPrestados = ConexionBD.buscarLibrosPrestados(documento);
+            List<Libro> librosDevolvidos = ConexionBD.buscarLibrosDevolvidos(documento);
+    
+            // Crear un archivo Excel
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Libros Prestados y Devueltos");
+    
+            // Escribir los datos en el archivo Excel
+            int fila = 0;
+            Row row = sheet.createRow(fila);  // Crea una nueva fila
+            row.createCell(0).setCellValue("Documento");
+            row.createCell(1).setCellValue("Nombre");
+            row.createCell(2).setCellValue("Libros Prestados");
+            row.createCell(3).setCellValue("Libros Devueltos");
+            row.createCell(4).setCellValue("Total Libros Prestados");
+    
+            fila++;
+            row = sheet.createRow(fila);  // Crea una nueva fila
+            row.createCell(0).setCellValue(documento);
+            row.createCell(1).setCellValue(nombre);
+            row.createCell(2).setCellValue(librosPrestados.size());
+            row.createCell(3).setCellValue(librosDevolvidos.size());
+            row.createCell(4).setCellValue(librosPrestados.size() + librosDevolvidos.size());
+    
+            fila++;
+            row = sheet.createRow(fila);  // Crea una nueva fila
+            row.createCell(0).setCellValue("Título");
+            row.createCell(1).setCellValue("Autor");
+            row.createCell(2).setCellValue("ISBN");
+            row.createCell(3).setCellValue("Fecha de Préstamo");
+            row.createCell(4).setCellValue("Fecha de Devolución");
+    
+            for (Libro libro : librosPrestados) {
+                fila++;
+                sheet.createRow(fila).createCell(0).setCellValue(libro.getTitulo());
+                sheet.getRow(fila).createCell(1).setCellValue(libro.getAutor());
+                sheet.getRow(fila).createCell(2).setCellValue(libro.getIsbn());
+                sheet.getRow(fila).createCell(3).setCellValue(libro.getFechaPrestamo());
+                sheet.getRow(fila).createCell(4).setCellValue(libro.getFechaDevolucion());
+            }
+    
+            for (Libro libro : librosDevolvidos) {
+                fila++;
+                sheet.createRow(fila).createCell(0).setCellValue(libro.getTitulo());
+                sheet.getRow(fila).createCell(1).setCellValue(libro.getAutor());
+                sheet.getRow(fila).createCell(2).setCellValue(libro.getIsbn());
+                sheet.getRow(fila).createCell(3).setCellValue(libro.getFechaPrestamo());
+                sheet.getRow(fila).createCell(4).setCellValue(libro.getFechaDevolucion());
+            }
+    
+    
+            // Guardar el archivo Excel
+            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/libros_prestados_devueltos.xlsx");
+            workbook.write(fos);
+            fos.close();
+            workbook.close(); // Cierra el Workbook
+    
+            // Mostrar un mensaje de confirmación
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Exportar a Excel");
+            alert.setHeaderText(null);
+            alert.setContentText("El archivo Excel ha sido generado correctamente.");
+            alert.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();  // Imprimir el error en la consola
+            // Mostrar un mensaje de error
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Exportar a Excel");
+            alert.setHeaderText(null);
+            alert.setContentText("Ha ocurrido un error al generar el archivo Excel.");
+            alert.showAndWait();
+        }
+    }
     private void mostrarLibros() {
         try {
             List<Libro> libros = ConexionBD.buscarLibros("");
@@ -162,8 +250,6 @@ public class BibliotecaFX extends Application {
         TextField fechaPublicacionField = new TextField();
         TextField numPaginasField = new TextField();
         TextArea descripcionArea = new TextArea();
-        TextField cantidadField = new TextField();
-        cantidadField.setPromptText("Cantidad de copias");
 
         dialog.getDialogPane().setContent(new VBox(8,
                 new Label("Título:"), tituloField,
@@ -171,8 +257,7 @@ public class BibliotecaFX extends Application {
                 new Label("ISBN:"), isbnField,
                 new Label("Fecha de Publicación:"), fechaPublicacionField,
                 new Label("Número de Páginas:"), numPaginasField,
-                new Label("Descripción:"), descripcionArea,
-                new Label("Cantidad de copias:"), cantidadField));
+                new Label("Descripción:"), descripcionArea));
 
         ButtonType agregarButtonType = new ButtonType("Agregar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(agregarButtonType, ButtonType.CANCEL);
@@ -182,12 +267,11 @@ public class BibliotecaFX extends Application {
                 try {
                     int fechaPublicacion = Integer.parseInt(fechaPublicacionField.getText());
                     int numPaginas = Integer.parseInt(numPaginasField.getText());
-                    int cantidad = Integer.parseInt(cantidadField.getText());
                     return new Libro(0, tituloField.getText(), autorField.getText(), fechaPublicacion,
-                            numPaginas, true, isbnField.getText(), descripcionArea.getText(), cantidad);
+                            numPaginas, true, isbnField.getText(), descripcionArea.getText(), numPaginas);
                 } catch (NumberFormatException e) {
                     mostrarError("Error",
-                            "Por favor, ingrese números válidos para la fecha de publicación, el número de páginas y la cantidad.");
+                            "Por favor, ingrese números válidos para la fecha de publicación y el número de páginas.");
                     return null;
                 }
             }
@@ -197,14 +281,14 @@ public class BibliotecaFX extends Application {
         Optional<Libro> result = dialog.showAndWait();
         result.ifPresent(libro -> {
             try {
-                ConexionBD.crearLibrosMultiples(libro);
+                ConexionBD.crearLibro(libro);
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Éxito");
                 alert.setHeaderText(null);
-                alert.setContentText("Libros agregados correctamente.");
+                alert.setContentText("Libro agregado correctamente.");
                 alert.showAndWait();
             } catch (SQLException e) {
-                mostrarError("Error", "No se pudieron agregar los libros: " + e.getMessage());
+                mostrarError("Error", "No se pudo agregar el libro: " + e.getMessage());
             }
         });
     }
@@ -338,8 +422,8 @@ public class BibliotecaFX extends Application {
         dialog.setTitle("Realizar Préstamo");
         dialog.setHeaderText("Ingrese los detalles del préstamo");
 
-        TextField nombreUsuarioField = new TextField(usuarioActual.getNombreUsuario());
-        TextField documentoField = new TextField(usuarioActual.getDocumento());
+        TextField nombreUsuarioField = new TextField();
+        TextField documentoField = new TextField();
         TextField idLibroField = new TextField();
 
         dialog.getDialogPane().setContent(new VBox(8,
