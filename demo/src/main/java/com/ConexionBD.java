@@ -542,4 +542,26 @@ public static void crearLibrosMultiples(Libro libro) throws SQLException {
     }
 }
 
+public static List<Usuario> obtenerTodosLosUsuarios() throws SQLException {
+    String query = "SELECT * FROM usuarios";
+    List<Usuario> usuarios = new ArrayList<>();
+
+    try (Connection conn = getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(query)) {
+        while (rs.next()) {
+            Usuario usuario = new Usuario(
+                    rs.getInt("id"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("contrasena"),
+                    rs.getString("email"),
+                    rs.getString("documento"),
+                    rs.getBoolean("es_administrador")
+            );
+            usuarios.add(usuario);
+        }
+    }
+    return usuarios;
+}
+
 }

@@ -31,6 +31,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class BibliotecaFX extends Application {
@@ -142,84 +144,100 @@ public class BibliotecaFX extends Application {
 
     private void exportarExcel() {
         try {
-            // Obtener los datos del usuario
-            String documento = usuarioActual.getDocumento();
-            String nombre = usuarioActual.getNombreUsuario();
-    
-            // Obtener los libros prestados y devueltos
-            List<Libro> librosPrestados = ConexionBD.buscarLibrosPrestados(documento);
-            List<Libro> librosDevolvidos = ConexionBD.buscarLibrosDevolvidos(documento);
-    
             // Crear un archivo Excel
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Libros Prestados y Devueltos");
+            Sheet sheet = workbook.createSheet("Usuarios y Libros");
     
-            // Escribir los datos en el archivo Excel
-            int fila = 0;
-            Row row = sheet.createRow(fila);  // Crea una nueva fila
-            row.createCell(0).setCellValue("Documento");
-            row.createCell(1).setCellValue("Nombre");
-            row.createCell(2).setCellValue("Libros Prestados");
-            row.createCell(3).setCellValue("Libros Devueltos");
-            row.createCell(4).setCellValue("Total Libros Prestados");
+            // Escribir los encabezados en el archivo Excel
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Documento");
+            headerRow.createCell(1).setCellValue("Nombre");
+            headerRow.createCell(2).setCellValue("Libros Prestados");
+            headerRow.createCell(3).setCellValue("Libros Devueltos");
+            headerRow.createCell(4).setCellValue("Total Libros");
     
-            fila++;
-            row = sheet.createRow(fila);  // Crea una nueva fila
-            row.createCell(0).setCellValue(documento);
-            row.createCell(1).setCellValue(nombre);
-            row.createCell(2).setCellValue(librosPrestados.size());
-            row.createCell(3).setCellValue(librosDevolvidos.size());
-            row.createCell(4).setCellValue(librosPrestados.size() + librosDevolvidos.size());
+            // Obtener todos los usuarios
+            List<Usuario> usuarios = ConexionBD.obtenerTodosLosUsuarios();
     
-            fila++;
-            row = sheet.createRow(fila);  // Crea una nueva fila
-            row.createCell(0).setCellValue("Título");
-            row.createCell(1).setCellValue("Autor");
-            row.createCell(2).setCellValue("ISBN");
-            row.createCell(3).setCellValue("Fecha de Préstamo");
-            row.createCell(4).setCellValue("Fecha de Devolución");
+            int rowNum = 1;
+            for (Usuario usuario : usuarios) {
+                String documento = usuario.getDocumento();
+                String nombre = usuario.getNombreUsuario();
     
-            for (Libro libro : librosPrestados) {
-                fila++;
-                sheet.createRow(fila).createCell(0).setCellValue(libro.getTitulo());
-                sheet.getRow(fila).createCell(1).setCellValue(libro.getAutor());
-                sheet.getRow(fila).createCell(2).setCellValue(libro.getIsbn());
-                sheet.getRow(fila).createCell(3).setCellValue(libro.getFechaPrestamo());
-                sheet.getRow(fila).createCell(4).setCellValue(libro.getFechaDevolucion());
+                // Obtener los libros prestados y devueltos
+                List<Libro> librosPrestados = ConexionBD.buscarLibrosPrestados(documento);
+                List<Libro> librosDevueltos = ConexionBD.buscarLibrosDevolvidos(documento);
+    
+                // Escribir los datos del usuario
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(documento);
+                row.createCell(1).setCellValue(nombre);
+                row.createCell(2).setCellValue(librosPrestados.size());
+                row.createCell(3).setCellValue(librosDevueltos.size());
+                row.createCell(4).setCellValue(librosPrestados.size() + librosDevueltos.size());
+    
+                // Escribir los detalles de los libros prestados
+                for (Libro libro : librosPrestados) {
+                    row = sheet.createRow(rowNum++);
+                    row.createCell(1).setCellValue("Prestado: " + libro.getTitulo());
+                    row.createCell(2).setCellValue(libro.getAutor());
+                    row.createCell(3).setCellValue(libro.getIsbn());
+    
+                    Cell fechaPrestamo = row.createCell(4);
+                    fechaPrestamo.setCellValue(libro.getFechaPrestamo());
+                    fechaPrestamo.setCellStyle(crearEstiloFecha(workbook));
+                }
+    
+                // Escribir los detalles de los libros devueltos
+                for (Libro libro : librosDevueltos) {
+                    row = sheet.createRow(rowNum++);
+                    row.createCell(1).setCellValue("Devuelto: " + libro.getTitulo());
+                    row.createCell(2).setCellValue(libro.getAutor());
+                    row.createCell(3).setCellValue(libro.getIsbn());
+    
+                    Cell fechaDevolucion = row.createCell(4);
+                    fechaDevolucion.setCellValue(libro.getFechaDevolucion());
+                    fechaDevolucion.setCellStyle(crearEstiloFecha(workbook));
+                }
+    
+                // Agregar una fila vacía entre usuarios
+                rowNum++;
             }
     
-            for (Libro libro : librosDevolvidos) {
-                fila++;
-                sheet.createRow(fila).createCell(0).setCellValue(libro.getTitulo());
-                sheet.getRow(fila).createCell(1).setCellValue(libro.getAutor());
-                sheet.getRow(fila).createCell(2).setCellValue(libro.getIsbn());
-                sheet.getRow(fila).createCell(3).setCellValue(libro.getFechaPrestamo());
-                sheet.getRow(fila).createCell(4).setCellValue(libro.getFechaDevolucion());
+            // Ajustar el ancho de las columnas
+            for (int i = 0; i <= 4; i++) {
+                sheet.autoSizeColumn(i);
             }
-    
     
             // Guardar el archivo Excel
-            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/libros_prestados_devueltos.xlsx");
+            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/usuarios_y_libros.xlsx");
             workbook.write(fos);
             fos.close();
-            workbook.close(); // Cierra el Workbook
+            workbook.close();
     
-            // Mostrar un mensaje de confirmación
+            // Mostrar mensaje de confirmación
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Exportar a Excel");
             alert.setHeaderText(null);
             alert.setContentText("El archivo Excel ha sido generado correctamente.");
             alert.showAndWait();
         } catch (Exception e) {
-            e.printStackTrace();  // Imprimir el error en la consola
-            // Mostrar un mensaje de error
+            e.printStackTrace();
+            // Mostrar mensaje de error
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Exportar a Excel");
             alert.setHeaderText(null);
-            alert.setContentText("Ha ocurrido un error al generar el archivo Excel.");
+            alert.setContentText("Ha ocurrido un error al generar el archivo Excel: " + e.getMessage());
             alert.showAndWait();
         }
     }
+ 
+private CellStyle crearEstiloFecha(Workbook workbook) {
+    CellStyle estiloFecha = workbook.createCellStyle();
+    CreationHelper createHelper = workbook.getCreationHelper();
+    estiloFecha.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+    return estiloFecha;
+}
     private void mostrarLibros() {
         try {
             List<Libro> libros = ConexionBD.buscarLibros("");
