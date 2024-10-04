@@ -62,7 +62,7 @@ public class BibliotecaFX extends Application {
 
         
         String[] opciones = {
-            "Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
+            "Registrar usuario","Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
             "Cambiar estado de libro", "Cerrar sesión", "Realizar préstamo", "Buscar libros",
             "Devolver libro", "Buscar prestamo por usuario" , "Exportar a Excel"
         };
@@ -85,7 +85,7 @@ public class BibliotecaFX extends Application {
         try {
             Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/Thumbsup1.png"));
             imageView = new ImageView(image);
-            imageView.setFitWidth(100); // Ajusta el tamaño de la imagen
+            imageView.setFitWidth(70); // Ajusta el tamaño de la imagen
             imageView.setPreserveRatio(true);
         } catch (FileNotFoundException e) {
             mostrarError("Error de imagen", "No se pudo cargar la imagen de Duke.");
@@ -105,41 +105,86 @@ public class BibliotecaFX extends Application {
     private void manejarOpcion(int opcion) throws SQLException {
 
         switch (opcion) {
+            
             case 0:
-                mostrarLibros();
+            registrarUsuario();
                 break;
             case 1:
-                agregarLibro();
+                mostrarLibros();
                 break;
             case 2:
-                eliminarLibro();
+                agregarLibro();
                 break;
             case 3:
-                editarLibro();
+                eliminarLibro();
                 break;
             case 4:
-                cambiarEstadoLibro();
+                editarLibro();
                 break;
             case 5:
-                cerrarSesion();
+                cambiarEstadoLibro();
                 break;
             case 6:
-                realizarPrestamo();
+                cerrarSesion();
                 break;
             case 7:
-                buscarLibros();
+                realizarPrestamo();
                 break;
             case 8:
-                devolverLibro();
+                buscarLibros();
                 break;
             case 9:
-                buscarUsuarioYLibrosPrestados();
+                devolverLibro();
                 break;
             case 10:
+                buscarUsuarioYLibrosPrestados();
+                break;
+            case 11:
                 exportarExcel();
                 break;
         }
 
+    }
+    private void registrarUsuario() {
+        Dialog<Usuario> dialog = new Dialog<>();
+        dialog.setTitle("Registrar Usuario");
+        dialog.setHeaderText("Ingrese los detalles del usuario");
+    
+        TextField nombreUsuarioField = new TextField();
+        PasswordField contrasenaField = new PasswordField();
+        TextField emailField = new TextField();
+        TextField documentoField = new TextField();
+        CheckBox esAdministradorCheckBox = new CheckBox("Es administrador");
+    
+        dialog.getDialogPane().setContent(new VBox(8,
+                new Label("Nombre de usuario:"), nombreUsuarioField,
+                new Label("Contraseña:"), contrasenaField,
+                new Label("Email:"), emailField,
+                new Label("Documento:"), documentoField,
+                esAdministradorCheckBox));
+    
+        ButtonType registrarButtonType = new ButtonType("Registrar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(registrarButtonType, ButtonType.CANCEL);
+    
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == registrarButtonType) {
+                return new Usuario(0, nombreUsuarioField.getText(), contrasenaField.getText(), emailField.getText(), documentoField.getText(), esAdministradorCheckBox.isSelected());
+            }
+            return null;
+        });
+    
+        Optional<Usuario> result = dialog.showAndWait();
+        result.ifPresent(usuario -> {
+            try {
+                if (ConexionBD.crearUsuario(usuario)) {
+                    mostrarInformacion("Éxito", "Usuario registrado correctamente.");
+                } else {
+                    mostrarError("Error", "No se pudo registrar el usuario.");
+                }
+            } catch (SQLException e) {
+                mostrarError("Error", "No se pudo registrar el usuario: " + e.getMessage());
+            }
+        });
     }
 
     private void exportarExcel() {
