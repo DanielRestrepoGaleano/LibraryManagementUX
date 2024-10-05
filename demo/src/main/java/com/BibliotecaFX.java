@@ -255,7 +255,7 @@ public class BibliotecaFX extends Application {
             }
     
             // Guardar el archivo Excel
-            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/usuarios_y_libros.xlsx");
+            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/demo/target/usuarios_y_libros.xlsx");
             workbook.write(fos);
             fos.close();
             workbook.close();
