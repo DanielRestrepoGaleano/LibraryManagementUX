@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Calendar;
 
 /**
  * La clase `ConexionBD` proporciona métodos para interactuar con una base de
@@ -241,7 +242,7 @@ public class ConexionBD {
      *                 tabla de base de datos llamada `prestamos`.
      */
     public static void crearPrestamo(Prestamo prestamo) throws SQLException {
-        String query = "INSERT INTO prestamos (nombre_usuario, documento, id_libro, isbn_libro, titulo_libro, autor_libro, fecha_prestamo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO prestamos (nombre_usuario, documento, id_libro, isbn_libro, titulo_libro, autor_libro, fecha_prestamo, fecha_vencimiento, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, prestamo.getNombreUsuario());
@@ -250,9 +251,33 @@ public class ConexionBD {
             pstmt.setString(4, prestamo.getIsbnLibro());
             pstmt.setString(5, prestamo.getTituloLibro());
             pstmt.setString(6, prestamo.getAutorLibro());
-            pstmt.setTimestamp(7, new Timestamp(prestamo.getFechaPrestamo().getTime()));
-            pstmt.executeUpdate();
-
+    
+            // Asegurarse de que fecha_prestamo no sea null
+            Timestamp fechaPrestamo;
+            if (prestamo.getFechaPrestamo() == null) {
+                fechaPrestamo = new Timestamp(System.currentTimeMillis());
+                prestamo.setFechaPrestamo(fechaPrestamo);
+            } else {
+                fechaPrestamo = new Timestamp(prestamo.getFechaPrestamo().getTime());
+            }
+            pstmt.setTimestamp(7, fechaPrestamo);
+    
+            // Calcular y establecer fecha_vencimiento
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(fechaPrestamo.getTime());
+            cal.add(Calendar.DAY_OF_MONTH, 15);
+            Timestamp fechaVencimiento = new Timestamp(cal.getTimeInMillis());
+            pstmt.setTimestamp(8, fechaVencimiento);
+            prestamo.setFechaVencimiento(fechaVencimiento);
+    
+            // El estado se establece automáticamente como 'activo' por el valor por defecto en la base de datos
+            pstmt.setString(9, "activo");
+    
+            // Ejecutar la inserción
+            int filasAfectadas = pstmt.executeUpdate();
+            System.out.println("Filas afectadas al crear préstamo: " + filasAfectadas);
+    
+            // Obtener el ID generado
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     prestamo.setId(generatedKeys.getInt(1));
@@ -524,7 +549,23 @@ public static List<Map<String, Object>> buscarUsuarioYLibrosPrestados(String nom
     }
     return resultados;
 }
+public static void actualizarEstadoPrestamos() throws SQLException {
+    String query = "UPDATE prestamos SET estado = 'vencido' WHERE fecha_vencimiento < CURDATE() AND estado = 'activo'";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        pstmt.executeUpdate();
+    }
+}
 
+public static boolean aplazarPrestamo(int idPrestamo) throws SQLException {
+    String query = "UPDATE prestamos SET fecha_vencimiento = DATE_ADD(fecha_vencimiento, INTERVAL 15 DAY), numero_aplazamientos = numero_aplazamientos + 1 WHERE id = ? AND numero_aplazamientos < 2 AND estado = 'activo'";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        pstmt.setInt(1, idPrestamo);
+        int rowsAffected = pstmt.executeUpdate();
+        return rowsAffected > 0;
+    }
+}
 public static void crearLibrosMultiples(Libro libro) throws SQLException {
     String query = "INSERT INTO libros (titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)";
     try (Connection conn = getConnection();

@@ -2,6 +2,7 @@ package com;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * La clase `Prestamo` representa un préstamo con atributos como nombre de usuario, documento, detalles del libro
@@ -18,6 +19,10 @@ public class Prestamo {
     private Timestamp fechaPrestamo;
     private Timestamp fechaDevolucion;
     private boolean devuelto;
+    private Timestamp fechaVencimiento;
+    private String estado;
+    private int numeroAplazamientos;
+
 
  /**
      * El constructor `public Prestamo(int id, String nombreUsuario, String documento, int idLibro,
@@ -38,6 +43,29 @@ public class Prestamo {
     }
 
     // Getters y setters
+    public Timestamp getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+    
+    public void setFechaVencimiento(Timestamp date) {
+        this.fechaVencimiento = date;
+    }
+    
+    public String getEstado() {
+        return estado;
+    }
+    
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    
+    public int getNumeroAplazamientos() {
+        return numeroAplazamientos;
+    }
+    
+    public void setNumeroAplazamientos(int numeroAplazamientos) {
+        this.numeroAplazamientos = numeroAplazamientos;
+    }
     public Timestamp getFechaDevolucion() {
         return fechaDevolucion;
     }
@@ -118,7 +146,19 @@ public class Prestamo {
         this.autorLibro = autorLibro;
     }
 
-   
+    public void aplazar() {
+        if (numeroAplazamientos < 2) {  // Permitimos hasta 2 aplazamientos
+            numeroAplazamientos++;
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(fechaVencimiento);
+            cal.add(Calendar.DAY_OF_MONTH, 15);
+            fechaVencimiento = new Timestamp(cal.getTimeInMillis());
+        }
+    }
+    
+    public boolean estaVencido() {
+        return new Timestamp(System.currentTimeMillis()).after(fechaVencimiento);
+    }
 
 /**
      * El método `toString` en Java sobrescribe la implementación predeterminada para devolver una representación de cadena

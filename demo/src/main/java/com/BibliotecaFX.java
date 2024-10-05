@@ -613,57 +613,103 @@ result.ifPresent(prestamo -> {
         });
     }
 
-private void buscarUsuarioYLibrosPrestados() {
-    Dialog<Pair<String, String>> dialog = new Dialog<>();
-    dialog.setTitle("Buscar Usuario y Libros Prestados");
-    dialog.setHeaderText("Ingrese el nombre de usuario y documento");
-
-    ButtonType buscarButtonType = new ButtonType("Buscar", ButtonBar.ButtonData.OK_DONE);
-    dialog.getDialogPane().getButtonTypes().addAll(buscarButtonType, ButtonType.CANCEL);
-
-    GridPane grid = new GridPane();
-    grid.setHgap(10);
-    grid.setVgap(10);
-    grid.setPadding(new Insets(20, 150, 10, 10));
-
-    TextField nombreUsuario = new TextField();
-    TextField documento = new TextField();
-
-    grid.add(new Label("Nombre de Usuario:"), 0, 0);
-    grid.add(nombreUsuario, 1, 0);
-    grid.add(new Label("Documento:"), 0, 1);
-    grid.add(documento, 1, 1);
-
-    dialog.getDialogPane().setContent(grid);
-
-    dialog.setResultConverter(dialogButton -> {
-        if (dialogButton == buscarButtonType) {
-            return new Pair<>(nombreUsuario.getText(), documento.getText());
-        }
-        return null;
-    });
-
-    Optional<Pair<String, String>> result = dialog.showAndWait();
-
-    result.ifPresent(userDoc -> {
-        try {
-            List<Map<String, Object>> librosPrestados = ConexionBD.buscarUsuarioYLibrosPrestados(userDoc.getKey(), userDoc.getValue());
-            if (librosPrestados.isEmpty()) {
-                mostrarInformacion("Búsqueda", "El usuario no tiene libros prestados actualmente.");
-            } else {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Libros prestados a ").append(userDoc.getKey()).append(":\n\n");
-                for (Map<String, Object> libro : librosPrestados) {
-                    sb.append(String.format("ID del préstamo: %d, ID del libro: %d, Título: %s, ISBN: %s\n",
-                        libro.get("id_prestamo"), libro.get("id_libro"), libro.get("titulo"), libro.get("isbn")));
-                }
-                mostrarInformacion("Resultados de la búsqueda", sb.toString());
+    private void buscarUsuarioYLibrosPrestados() {
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Buscar Usuario y Libros Prestados");
+        dialog.setHeaderText("Ingrese el nombre de usuario y documento");
+    
+        ButtonType buscarButtonType = new ButtonType("Buscar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(buscarButtonType, ButtonType.CANCEL);
+    
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+    
+        TextField nombreUsuario = new TextField();
+        TextField documento = new TextField();
+    
+        grid.add(new Label("Nombre de Usuario:"), 0, 0);
+        grid.add(nombreUsuario, 1, 0);
+        grid.add(new Label("Documento:"), 0, 1);
+        grid.add(documento, 1, 1);
+    
+        dialog.getDialogPane().setContent(grid);
+    
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == buscarButtonType) {
+                return new Pair<>(nombreUsuario.getText(), documento.getText());
             }
-        } catch (SQLException e) {
-            mostrarError("Error", "No se pudo realizar la búsqueda: " + e.getMessage());
+            return null;
+        });
+    
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+    
+        result.ifPresent(userDoc -> {
+            try {
+                List<Map<String, Object>> librosPrestados = ConexionBD.buscarUsuarioYLibrosPrestados(userDoc.getKey(), userDoc.getValue());
+                if (librosPrestados.isEmpty()) {
+                    mostrarInformacion("Búsqueda", "El usuario no tiene libros prestados actualmente.");
+                } else {
+                    mostrarLibrosPrestadosConOpcionAplazamiento(librosPrestados, userDoc.getKey());
+                }
+            } catch (SQLException e) {
+                mostrarError("Error", "No se pudo realizar la búsqueda: " + e.getMessage());
+            }
+        });
+    }
+    
+    private void mostrarLibrosPrestadosConOpcionAplazamiento(List<Map<String, Object>> librosPrestados, String nombreUsuario) {
+        Dialog<Integer> resultDialog = new Dialog<>();
+        resultDialog.setTitle("Resultados de la búsqueda");
+        resultDialog.setHeaderText("Libros prestados a " + nombreUsuario);
+    
+        ButtonType aplazarButtonType = new ButtonType("Aplazar", ButtonBar.ButtonData.OK_DONE);
+        resultDialog.getDialogPane().getButtonTypes().addAll(aplazarButtonType, ButtonType.CANCEL);
+    
+        VBox contentBox = new VBox(10);
+        contentBox.setPadding(new Insets(20, 150, 10, 10));
+    
+        ListView<String> listView = new ListView<>();
+        for (Map<String, Object> libro : librosPrestados) {
+            listView.getItems().add(String.format("ID del préstamo: %d, ID del libro: %d, Título: %s, ISBN: %s",
+                    libro.get("id_prestamo"), libro.get("id_libro"), libro.get("titulo"), libro.get("isbn")));
         }
-    });
-}
+    
+        contentBox.getChildren().add(listView);
+    
+        Label idPrestamoLabel = new Label("ID del préstamo a aplazar:");
+        TextField idPrestamoField = new TextField();
+        contentBox.getChildren().addAll(idPrestamoLabel, idPrestamoField);
+    
+        resultDialog.getDialogPane().setContent(contentBox);
+    
+        resultDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == aplazarButtonType) {
+                try {
+                    return Integer.parseInt(idPrestamoField.getText());
+                } catch (NumberFormatException e) {
+                     mostrarError("Error", "Por favor, ingrese un ID de préstamo válido.");
+                    return null;
+                }
+            }
+            return null;
+        });
+    
+        Optional<Integer> result = resultDialog.showAndWait();
+    
+        result.ifPresent(idPrestamo -> {
+            try {
+                if (ConexionBD.aplazarPrestamo(idPrestamo)) {
+                    mostrarInformacion("Aplazamiento", "El préstamo se ha aplazado correctamente.");
+                } else {
+                    mostrarError("Error", "No se pudo aplazar el préstamo.");
+                }
+            } catch (SQLException e) {
+                mostrarError("Error", "No se pudo aplazar el préstamo: " + e.getMessage());
+            }
+        });
+    }
 
     private void mostrarLoginDialog() {
         Dialog<Pair<String, String>> dialog = new Dialog<>();
