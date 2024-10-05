@@ -83,7 +83,7 @@ public class BibliotecaFX extends Application {
         /* Cargar imagen */
         ImageView imageView = null;
         try {
-            Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/Thumbsup1.png"));
+            Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/demo/target/classes/Thumbsup1.png"));
             imageView = new ImageView(image);
             imageView.setFitWidth(70); // Ajusta el tamaño de la imagen
             imageView.setPreserveRatio(true);
@@ -95,7 +95,7 @@ public class BibliotecaFX extends Application {
             root.getChildren().add(imageView); // Añadir la imagen debajo de los botones
         }
         root.getChildren().addAll(botones);
-        Scene scene = new Scene(root, 300, 500);
+        Scene scene = new Scene(root, 300, 550);
         primaryStage.setTitle("Biblioteca");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -283,24 +283,47 @@ private CellStyle crearEstiloFecha(Workbook workbook) {
     estiloFecha.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
     return estiloFecha;
 }
-    private void mostrarLibros() {
-        try {
-            List<Libro> libros = ConexionBD.buscarLibros("");
-            StringBuilder sb = new StringBuilder();
-            for (Libro libro : libros) {
-                boolean disponible = ConexionBD.isLibroDisponible(libro.getId());
-                sb.append(String.format("ID: %d, Título: %s, ISBN: %s, Disponible: %s\n",
-                    libro.getId(), libro.getTitulo(), libro.getIsbn(), disponible ? "Sí" : "No"));
-            }
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Libros");
-            alert.setHeaderText(null);
-            alert.setContentText(sb.toString());
-            alert.showAndWait();
-        } catch (SQLException e) {
-            mostrarError("Error", "No se pudieron obtener los libros: " + e.getMessage());
+private void mostrarLibros() {
+    try {
+        List<Libro> libros = ConexionBD.buscarLibros("");
+        ListView<String> listView = new ListView<>();
+
+        // Agregar los libros a la lista
+        for (Libro libro : libros) {
+            boolean disponible = ConexionBD.isLibroDisponible(libro.getId());
+            listView.getItems().add(String.format("ID: %d, Título: %s, ISBN: %s, Disponible: %s",
+                libro.getId(), libro.getTitulo(), libro.getIsbn(), disponible ? "Sí" : "No"));
         }
+
+        // Crear un diálogo con la lista
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Libros");
+        dialog.setHeaderText(null);
+
+        // Establecer un ancho prefijado para el diálogo
+        dialog.getDialogPane().setPrefWidth(800);
+
+        // Agregar la lista al diálogo
+        dialog.getDialogPane().setContent(listView);
+
+        // Agregar un botón de cerrar
+        ButtonType closeButton = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(closeButton);
+
+        // Establecer un evento para que se cierre el diálogo cuando se hace clic en el botón de cerrar
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == closeButton) {
+                return "Cerrar";
+            }
+            return null;
+        });
+
+        // Mostrar el diálogo
+        dialog.showAndWait();
+    } catch (SQLException e) {
+        mostrarError("Error", "No se pudieron obtener los libros: " + e.getMessage());
     }
+}
 
     private void agregarLibro() {
         Dialog<Libro> dialog = new Dialog<>();
