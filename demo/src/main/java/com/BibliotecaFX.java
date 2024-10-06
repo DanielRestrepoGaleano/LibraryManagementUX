@@ -38,7 +38,8 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class BibliotecaFX extends Application {
-
+    private Stage primaryStage;
+    private HostServices hostServices;
     private static final String DB_URL = "jdbc:mysql://localhost:3306/biblioteca";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
@@ -49,6 +50,9 @@ public class BibliotecaFX extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        this.hostServices = getHostServices();
+        mostrarLoginDialog();
         try {
             conexion = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             gestorUsuarios = new GestorUsuarios(conexion);
@@ -57,104 +61,118 @@ public class BibliotecaFX extends Application {
             return;
         }
 
-        VBox root = new VBox(10);
-        root.setPadding(new Insets(20));
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(20));
+        /* 
+        Scene scene = new Scene(root, 300, 550);
+    primaryStage.setTitle("Biblioteca");
+    primaryStage.setScene(scene);
+    primaryStage.show();
 
+    mostrarLoginDialog();
+    */
+    }
+        private void mostrarMenuPrincipal(){
+            VBox root = new VBox(10);
+            root.setPadding(new Insets(20));
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new Insets(20));
+    
+
+            String[] opciones = {
+                "Registrar usuario","Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
+                "Cambiar estado de libro", "Cerrar sesión", "Realizar préstamo", "Buscar libros",
+                "Devolver libro", "Buscar prestamo por usuario" , "Exportar a Excel"
+            };
+            Button[] botones = new Button[opciones.length];
+            for (int i = 0; i < botones.length; i++) {
+                int index = i;
+                botones[i] = new Button(opciones[i]);
+                botones[i].setOnAction(e -> {
+                    try {
+                        manejarOpcion(index);
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+                botones[i].setMaxWidth(Double.MAX_VALUE);
+            }
+            root.getChildren().addAll(botones);
+            Scene scene = new Scene(root, 300, 550);
+            primaryStage.setTitle("Biblioteca");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            
+            
+            
+            /* Cargar imágenes */
+    ImageView dukeImageView = null;
+    ImageView fatimaImageView = null;
+    try {
+        InputStream dukeInputStream = getClass().getResourceAsStream("/Thumbsup1.png");
+        InputStream fatimaInputStream = getClass().getResourceAsStream("/fatima.png");
         
-        String[] opciones = {
-            "Registrar usuario","Mostrar libros", "Agregar libro", "Eliminar libro", "Editar libro",
-            "Cambiar estado de libro", "Cerrar sesión", "Realizar préstamo", "Buscar libros",
-            "Devolver libro", "Buscar prestamo por usuario" , "Exportar a Excel"
-        };
-        Button[] botones = new Button[opciones.length];
-        for (int i = 0; i < botones.length; i++) {
-            int index = i;
-            botones[i] = new Button(opciones[i]);
-            botones[i].setOnAction(e -> {
-                try {
-                    manejarOpcion(index);
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-            });
-            botones[i].setMaxWidth(Double.MAX_VALUE);
+        if (dukeInputStream != null && fatimaInputStream != null) {
+            Image dukeImage = new Image(dukeInputStream);
+            Image fatimaImage = new Image(fatimaInputStream);
+            
+            dukeImageView = new ImageView(dukeImage);
+            fatimaImageView = new ImageView(fatimaImage);
+            
+            dukeImageView.setFitWidth(85); //tamaños de imagen
+            fatimaImageView.setFitWidth(85);
+            
+            dukeImageView.setPreserveRatio(true);
+            fatimaImageView.setPreserveRatio(true);
+        } else {
+            throw new FileNotFoundException("No se pudo encontrar uno o ambos recursos de imagen");
         }
-        
-        /* Cargar imágenes */
-ImageView dukeImageView = null;
-ImageView fatimaImageView = null;
-try {
-    InputStream dukeInputStream = getClass().getResourceAsStream("/Thumbsup1.png");
-    InputStream fatimaInputStream = getClass().getResourceAsStream("/fatima.png");
+    } catch (FileNotFoundException e) {
+        mostrarError("Error de imagen", "No se pudieron cargar una o ambas imágenes.");
+    }
     
-    if (dukeInputStream != null && fatimaInputStream != null) {
-        Image dukeImage = new Image(dukeInputStream);
-        Image fatimaImage = new Image(fatimaInputStream);
+    HBox imageContainer = new HBox(100); // 100 es el espacio entre las imágenes
+    
+    if (dukeImageView != null && fatimaImageView != null) {
+        Hyperlink dukeLink = new Hyperlink();
+        dukeLink.setGraphic(dukeImageView);
+        dukeLink.setBorder(null);
         
-        dukeImageView = new ImageView(dukeImage);
-        fatimaImageView = new ImageView(fatimaImage);
+        Hyperlink fatimaLink = new Hyperlink();
+        fatimaLink.setGraphic(fatimaImageView);
+        fatimaLink.setBorder(null);
         
-        dukeImageView.setFitWidth(85); //tamaños de imagen
-        fatimaImageView.setFitWidth(85);
+        HostServices hostServices = getHostServices();
+        dukeLink.setOnAction(e -> {
+            hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
+        });
         
-        dukeImageView.setPreserveRatio(true);
-        fatimaImageView.setPreserveRatio(true);
+        fatimaLink.setOnAction(e -> {
+            hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+        });
+        
+        imageContainer.getChildren().addAll(dukeLink, fatimaLink);
+        root.getChildren().add(imageContainer);
     } else {
-        throw new FileNotFoundException("No se pudo encontrar uno o ambos recursos de imagen");
+        // Si no se pudieron cargar las imágenes, añadir enlaces de texto como alternativa
+        Hyperlink githubLink = new Hyperlink("Mi GitHub");
+        Hyperlink escuelaLink = new Hyperlink("Mi Escuela");
+        
+        HostServices hostServices = getHostServices();
+        githubLink.setOnAction(e -> {
+            hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
+        });
+        escuelaLink.setOnAction(e -> {
+            hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+        });
+        
+        imageContainer.getChildren().addAll(githubLink, escuelaLink);
+        root.getChildren().add(imageContainer);
     }
-} catch (FileNotFoundException e) {
-    mostrarError("Error de imagen", "No se pudieron cargar una o ambas imágenes.");
+   
+   
 }
 
-HBox imageContainer = new HBox(100); // 100 es el espacio entre las imágenes
-
-if (dukeImageView != null && fatimaImageView != null) {
-    Hyperlink dukeLink = new Hyperlink();
-    dukeLink.setGraphic(dukeImageView);
-    dukeLink.setBorder(null);
+        
     
-    Hyperlink fatimaLink = new Hyperlink();
-    fatimaLink.setGraphic(fatimaImageView);
-    fatimaLink.setBorder(null);
-    
-    HostServices hostServices = getHostServices();
-    dukeLink.setOnAction(e -> {
-        hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
-    });
-    
-    fatimaLink.setOnAction(e -> {
-        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
-    });
-    
-    imageContainer.getChildren().addAll(dukeLink, fatimaLink);
-    root.getChildren().add(imageContainer);
-} else {
-    // Si no se pudieron cargar las imágenes, añadir enlaces de texto como alternativa
-    Hyperlink githubLink = new Hyperlink("Mi GitHub");
-    Hyperlink escuelaLink = new Hyperlink("Mi Escuela");
-    
-    HostServices hostServices = getHostServices();
-    githubLink.setOnAction(e -> {
-        hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
-    });
-    escuelaLink.setOnAction(e -> {
-        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
-    });
-    
-    imageContainer.getChildren().addAll(githubLink, escuelaLink);
-    root.getChildren().add(imageContainer);
-}
-
-root.getChildren().addAll(botones);
-Scene scene = new Scene(root, 300, 550);
-primaryStage.setTitle("Biblioteca");
-primaryStage.setScene(scene);
-primaryStage.show();
-
-mostrarLoginDialog();
-    }
     private void manejarOpcion(int opcion) throws SQLException {
 
         switch (opcion) {
@@ -824,34 +842,44 @@ result.ifPresent(prestamo -> {
         Dialog<Pair<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Iniciar sesión");
         dialog.setHeaderText("Por favor, ingrese sus credenciales");
-
+    
         ButtonType loginButtonType = new ButtonType("Iniciar sesión", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-
+    
         TextField username = new TextField();
         username.setPromptText("Nombre de usuario");
         PasswordField password = new PasswordField();
         password.setPromptText("Contraseña");
-
+    
         dialog.getDialogPane().setContent(new VBox(8, username, password));
-
+    
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == loginButtonType) {
                 return new Pair<>(username.getText(), password.getText());
             }
             return null;
         });
-
+    
         Optional<Pair<String, String>> result = dialog.showAndWait();
-
         result.ifPresent(usernamePassword -> {
-            String nombreUsuario = usernamePassword.getKey();
-            String contrasena = usernamePassword.getValue();
-
-            usuarioActual = gestorUsuarios.autenticarUsuario(nombreUsuario, contrasena);
-            if (usuarioActual == null) {
-                mostrarError("Error de autenticación", "Credenciales incorrectas");
-                mostrarLoginDialog();
+            String usernameInput = usernamePassword.getKey();
+            String passwordInput = usernamePassword.getValue();
+    
+            try {
+                Usuario usuario = ConexionBD.autenticarUsuario(usernameInput, passwordInput);
+                if (usuario != null) {
+                    if (usuario.esAdministrador()) {
+                        mostrarMenuPrincipal();
+                    } else {
+                        mostrarError("Acceso denegado", "Solo los administradores pueden acceder al menú principal.");
+                        mostrarLoginDialog();
+                    }
+                } else {
+                    mostrarError("Error de autenticación", "Usuario o contraseña incorrectos.");
+                    mostrarLoginDialog();
+                }
+            } catch (SQLException e) {
+                mostrarError("Error de base de datos", "No se pudo autenticar al usuario: " + e.getMessage());
             }
         });
     }

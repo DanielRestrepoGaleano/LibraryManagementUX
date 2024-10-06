@@ -414,6 +414,33 @@ public class ConexionBD {
         return resultados;
     }
 
+    public static Usuario autenticarUsuario(String username, String password) throws SQLException {
+        // Implementa la lógica de autenticación aquí
+        // Por ejemplo:
+        String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                        rs.getInt("id"),
+                        rs.getString("nombre_usuario"),
+                        rs.getString("contrasena"),
+             
+                        rs.getString("email"),
+                        rs.getString("documento"),
+                        rs.getBoolean("es_administrador")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Busca un préstamo activo en la base de datos según el nombre de usuario,
      * documento y ID de libro, excluyendo préstamos devueltos.
