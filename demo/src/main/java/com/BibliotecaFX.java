@@ -1,5 +1,5 @@
 package com;
-
+import javafx.application.HostServices;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -9,10 +9,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -80,27 +82,78 @@ public class BibliotecaFX extends Application {
             botones[i].setMaxWidth(Double.MAX_VALUE);
         }
         
-        /* Cargar imagen */
-        ImageView imageView = null;
-        try {
-            Image image = new Image(new FileInputStream("C:/xampp/htdocs/BibliotecaGUI/demo/target/classes/Thumbsup1.png"));
-            imageView = new ImageView(image);
-            imageView.setFitWidth(70); // Ajusta el tamaño de la imagen
-            imageView.setPreserveRatio(true);
-        } catch (FileNotFoundException e) {
-            mostrarError("Error de imagen", "No se pudo cargar la imagen de Duke.");
-        }
+        /* Cargar imágenes */
+ImageView dukeImageView = null;
+ImageView fatimaImageView = null;
+try {
+    InputStream dukeInputStream = getClass().getResourceAsStream("/Thumbsup1.png");
+    InputStream fatimaInputStream = getClass().getResourceAsStream("/fatima.png");
+    
+    if (dukeInputStream != null && fatimaInputStream != null) {
+        Image dukeImage = new Image(dukeInputStream);
+        Image fatimaImage = new Image(fatimaInputStream);
         
-        if (imageView != null) {
-            root.getChildren().add(imageView); // Añadir la imagen debajo de los botones
-        }
-        root.getChildren().addAll(botones);
-        Scene scene = new Scene(root, 300, 550);
-        primaryStage.setTitle("Biblioteca");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        dukeImageView = new ImageView(dukeImage);
+        fatimaImageView = new ImageView(fatimaImage);
         
-        mostrarLoginDialog();
+        dukeImageView.setFitWidth(85); //tamaños de imagen
+        fatimaImageView.setFitWidth(85);
+        
+        dukeImageView.setPreserveRatio(true);
+        fatimaImageView.setPreserveRatio(true);
+    } else {
+        throw new FileNotFoundException("No se pudo encontrar uno o ambos recursos de imagen");
+    }
+} catch (FileNotFoundException e) {
+    mostrarError("Error de imagen", "No se pudieron cargar una o ambas imágenes.");
+}
+
+HBox imageContainer = new HBox(100); // 100 es el espacio entre las imágenes
+
+if (dukeImageView != null && fatimaImageView != null) {
+    Hyperlink dukeLink = new Hyperlink();
+    dukeLink.setGraphic(dukeImageView);
+    dukeLink.setBorder(null);
+    
+    Hyperlink fatimaLink = new Hyperlink();
+    fatimaLink.setGraphic(fatimaImageView);
+    fatimaLink.setBorder(null);
+    
+    HostServices hostServices = getHostServices();
+    dukeLink.setOnAction(e -> {
+        hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
+    });
+    
+    fatimaLink.setOnAction(e -> {
+        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+    });
+    
+    imageContainer.getChildren().addAll(dukeLink, fatimaLink);
+    root.getChildren().add(imageContainer);
+} else {
+    // Si no se pudieron cargar las imágenes, añadir enlaces de texto como alternativa
+    Hyperlink githubLink = new Hyperlink("Mi GitHub");
+    Hyperlink escuelaLink = new Hyperlink("Mi Escuela");
+    
+    HostServices hostServices = getHostServices();
+    githubLink.setOnAction(e -> {
+        hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
+    });
+    escuelaLink.setOnAction(e -> {
+        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+    });
+    
+    imageContainer.getChildren().addAll(githubLink, escuelaLink);
+    root.getChildren().add(imageContainer);
+}
+
+root.getChildren().addAll(botones);
+Scene scene = new Scene(root, 300, 550);
+primaryStage.setTitle("Biblioteca");
+primaryStage.setScene(scene);
+primaryStage.show();
+
+mostrarLoginDialog();
     }
     private void manejarOpcion(int opcion) throws SQLException {
 
@@ -152,23 +205,62 @@ public class BibliotecaFX extends Application {
     
         TextField nombreUsuarioField = new TextField();
         PasswordField contrasenaField = new PasswordField();
+        contrasenaField.setPromptText("Contraseña (solo para administradores)");
         TextField emailField = new TextField();
         TextField documentoField = new TextField();
         CheckBox esAdministradorCheckBox = new CheckBox("Es administrador");
     
-        dialog.getDialogPane().setContent(new VBox(8,
+        VBox formLayout = new VBox(8,
                 new Label("Nombre de usuario:"), nombreUsuarioField,
-                new Label("Contraseña:"), contrasenaField,
                 new Label("Email:"), emailField,
                 new Label("Documento:"), documentoField,
-                esAdministradorCheckBox));
+                esAdministradorCheckBox);
+    
+        // Inicialmente, no agregamos el campo de contraseña
+        Label contrasenaLabel = new Label("Contraseña:");
+        
+        esAdministradorCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                // Si se selecciona "Es administrador", mostrar el campo de contraseña
+                if (!formLayout.getChildren().contains(contrasenaLabel)) {
+                    formLayout.getChildren().addAll(contrasenaLabel, contrasenaField);
+                    // Ajustar el tamaño del diálogo
+                    Platform.runLater(() -> {
+                        dialog.getDialogPane().getScene().getWindow().sizeToScene();
+                    });
+                }
+            } else {
+                // Si se deselecciona, ocultar el campo de contraseña
+                formLayout.getChildren().removeAll(contrasenaLabel, contrasenaField);
+                // Ajustar el tamaño del diálogo
+                Platform.runLater(() -> {
+                    dialog.getDialogPane().getScene().getWindow().sizeToScene();
+                });
+            }
+        });
+        
+         // Establecer un ancho preferido para los campos de texto
+        nombreUsuarioField.setPrefWidth(250);
+        emailField.setPrefWidth(250);
+        documentoField.setPrefWidth(250);
+        contrasenaField.setPrefWidth(250);
+
+        dialog.getDialogPane().setContent(formLayout);
     
         ButtonType registrarButtonType = new ButtonType("Registrar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(registrarButtonType, ButtonType.CANCEL);
     
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == registrarButtonType) {
-                return new Usuario(0, nombreUsuarioField.getText(), contrasenaField.getText(), emailField.getText(), documentoField.getText(), esAdministradorCheckBox.isSelected());
+                boolean esAdmin = esAdministradorCheckBox.isSelected();
+                String contrasena = contrasenaField.getText();
+                
+                if (esAdmin && contrasena.isEmpty()) {
+                    mostrarError("Error de registro", "Los usuarios administradores deben proporcionar una contraseña.");
+                    return null;
+                }
+                
+                return new Usuario(0, nombreUsuarioField.getText(), contrasena, emailField.getText(), documentoField.getText(), esAdmin);
             }
             return null;
         });
@@ -255,27 +347,44 @@ public class BibliotecaFX extends Application {
             }
     
             // Guardar el archivo Excel
-            FileOutputStream fos = new FileOutputStream("C:/xampp/htdocs/BibliotecaGUI/demo/target/usuarios_y_libros.xlsx");
-            workbook.write(fos);
-            fos.close();
+             // Permitir al usuario elegir dónde guardar el archivo
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar archivo Excel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Files", "*.xlsx"));
+        fileChooser.setInitialFileName("usuarios_y_libros.xlsx");
+        File file = fileChooser.showSaveDialog(null);
+
+        if (file != null) {
+            // Guardar el archivo Excel
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                workbook.write(fos);
+            }
             workbook.close();
-    
+
             // Mostrar mensaje de confirmación
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Exportar a Excel");
             alert.setHeaderText(null);
             alert.setContentText("El archivo Excel ha sido generado correctamente.");
             alert.showAndWait();
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Mostrar mensaje de error
-            Alert alert = new Alert(Alert.AlertType.ERROR);
+        } else {
+            // El usuario canceló la operación
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Exportar a Excel");
             alert.setHeaderText(null);
-            alert.setContentText("Ha ocurrido un error al generar el archivo Excel: " + e.getMessage());
+            alert.setContentText("La exportación a Excel fue cancelada.");
             alert.showAndWait();
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        // Mostrar mensaje de error
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Exportar a Excel");
+        alert.setHeaderText(null);
+        alert.setContentText("Ha ocurrido un error al generar el archivo Excel: " + e.getMessage());
+        alert.showAndWait();
     }
+}
  
 private CellStyle crearEstiloFecha(Workbook workbook) {
     CellStyle estiloFecha = workbook.createCellStyle();
