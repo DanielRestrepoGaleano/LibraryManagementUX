@@ -62,14 +62,7 @@ public class BibliotecaFX extends Application {
             return;
         }
 
-        /*
-         * Scene scene = new Scene(root, 300, 550);
-         * primaryStage.setTitle("Biblioteca");
-         * primaryStage.setScene(scene);
-         * primaryStage.show();
-         * 
-         * mostrarLoginDialog();
-         */
+     
     }
 
     private void mostrarMenuPrincipal() {

@@ -4,7 +4,7 @@ Este proyecto es la continuación del proyecto de gestión de biblioteca.
 Me enfocaré en agregar una interfaz gráfica de usuario (GUI) para interactuar con la base de datos MYSQL
 Todo se está realizando mediante el editor de texto *VS code*
 **NOTA**
-Aún se están realizando cambios y configuraciones del espacio de trabajo, por lo tanto unicamente verá los archivos .json, .xml y .md  que se están utilizando para la configuración del proyecto. Más adelante se subirán las clases necesarias para que todo funcione
+La documentación de todo el proyecto se pospondrá, se continuarán con las actualizaciones del software. Pero imágenes y demás detalles sobre la documentación se subiran cuando la aplicación tenga sus funcionalidades  al 100%. Por ahora puede clonar este repositorio y seguir las indicaciones para configurar las variables de entorno (EN WINDOWS). en los proximos días se subirá la base de datos actualizada
 
 ## IMPORTANTE
 
@@ -39,12 +39,8 @@ Este proyecto tiene la siguente estructura y se está trabajando con maeven.
 El proyecto utiliza las siguientes dependencias, también adjunto links de descarga.
 
 - [Connector-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j) Conexión a la base de datos
-- [Connector-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j) Conexión a la base de datos
+
 - [maeven](https://maven.apache.org/install.html) Gestión del proyecto
-- [JavaFX](https://gluonhq.com/products/javafx/) para crear la interfaz de usuario
-  Además está utilizando el gestor de la base de datos MySQL.
-  Está utilizando el servidor local de Apache y el local host de phpMyAdmin.
-  por lo tanto debe tener instalado [XAMPP](https://www.apachefriends.org/es/index.html)
 - [JavaFX](https://gluonhq.com/products/javafx/) para crear la interfaz de usuario
   Además está utilizando el gestor de la base de datos MySQL.
   Está utilizando el servidor local de Apache y el local host de phpMyAdmin.
@@ -53,19 +49,14 @@ El proyecto utiliza las siguientes dependencias, también adjunto links de desca
 ## INSTALACIÓN Y REQUISITOS
 
 - En su archivo pom.xml deberá agregar connector-j y javaFX con las versiones que necesite
-- En su archivo pom.xml deberá agregar connector-j y javaFX con las versiones que necesite
 - [CONNECTOR-J](https://central.sonatype.com/artifact/com.mysql/mysql-connector-j)
 - [javaFX](https://gluonhq.com/products/javafx/) asegurese de descargar el SDK
 - Debe tener instalado [Maven](https://maven.apache.org/download.cgi) en su computadora
-- Debe tener instalado Java 8 o superior (java 17 recomendado)
-- Debe tener instalado [XAMPP](https://www.apachefriends.org/es/index.html)
-- Debe tener instalado Java 8 o superior (java 17 recomendado)
+- Debe tener instalado Java 17
 - Debe tener instalado [XAMPP](https://www.apachefriends.org/es/index.html)
 
 ### EXPLICACIÓN PARA CONFIGURACIÓN DE VARIABLES DE ENTORNO Y MAVEN
 
-**En windows, si no tiene las variables de entorno configuradas deberá hacerlo de la sigiente forma.**
-**Por ahora todo el proyecto se está configurando por medio de windows, si usted usa otro Sistema Operativo deberá buscar los recursos en la red para adaptar el proyecto**
 **En windows, si no tiene las variables de entorno configuradas deberá hacerlo de la sigiente forma.**
 **Por ahora todo el proyecto se está configurando por medio de windows, si usted usa otro Sistema Operativo deberá buscar los recursos en la red para adaptar el proyecto**
 
