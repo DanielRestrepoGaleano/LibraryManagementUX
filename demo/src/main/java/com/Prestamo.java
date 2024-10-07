@@ -5,7 +5,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 /**
- * La clase `Prestamo` representa un préstamo con atributos como nombre de usuario, documento, detalles del libro
+ * La clase `Prestamo` representa un préstamo con atributos como nombre de
+ * usuario, documento, detalles del libro
  * y fecha de préstamo.
  */
 public class Prestamo {
@@ -23,13 +24,16 @@ public class Prestamo {
     private String estado;
     private int numeroAplazamientos;
 
-
- /**
-     * El constructor `public Prestamo(int id, String nombreUsuario, String documento, int idLibro,
-     * String isbnLibro, String tituloLibro, String autorLibro, Date fechaPrestamo)` en la clase `Prestamo`
-     * inicializa una nueva instancia del objeto `Prestamo` con los valores proporcionados para sus atributos.
+    /**
+     * El constructor `public Prestamo(int id, String nombreUsuario, String
+     * documento, int idLibro,
+     * String isbnLibro, String tituloLibro, String autorLibro, Date fechaPrestamo)`
+     * en la clase `Prestamo`
+     * inicializa una nueva instancia del objeto `Prestamo` con los valores
+     * proporcionados para sus atributos.
      */
-    public Prestamo(int id, String nombreUsuario, String documento, int idLibro, String isbnLibro, String tituloLibro, String autorLibro, Timestamp fechaPrestamo, boolean devuelto) {
+    public Prestamo(int id, String nombreUsuario, String documento, int idLibro, String isbnLibro, String tituloLibro,
+            String autorLibro, Timestamp fechaPrestamo, boolean devuelto) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.documento = documento;
@@ -46,26 +50,27 @@ public class Prestamo {
     public Timestamp getFechaVencimiento() {
         return fechaVencimiento;
     }
-    
+
     public void setFechaVencimiento(Timestamp date) {
         this.fechaVencimiento = date;
     }
-    
+
     public String getEstado() {
         return estado;
     }
-    
+
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    
+
     public int getNumeroAplazamientos() {
         return numeroAplazamientos;
     }
-    
+
     public void setNumeroAplazamientos(int numeroAplazamientos) {
         this.numeroAplazamientos = numeroAplazamientos;
     }
+
     public Timestamp getFechaDevolucion() {
         return fechaDevolucion;
     }
@@ -90,6 +95,7 @@ public class Prestamo {
     public void setDevuelto(boolean devuelto) {
         this.devuelto = devuelto;
     }
+
     public int getId() {
         return id;
     }
@@ -147,7 +153,7 @@ public class Prestamo {
     }
 
     public void aplazar() {
-        if (numeroAplazamientos < 2) {  // Permitimos hasta 2 aplazamientos
+        if (numeroAplazamientos < 2) { // Permitimos hasta 2 aplazamientos
             numeroAplazamientos++;
             Calendar cal = Calendar.getInstance();
             cal.setTime(fechaVencimiento);
@@ -155,18 +161,21 @@ public class Prestamo {
             fechaVencimiento = new Timestamp(cal.getTimeInMillis());
         }
     }
-    
+
     public boolean estaVencido() {
         return new Timestamp(System.currentTimeMillis()).after(fechaVencimiento);
     }
 
-/**
-     * El método `toString` en Java sobrescribe la implementación predeterminada para devolver una representación de cadena
+    /**
+     * El método `toString` en Java sobrescribe la implementación predeterminada
+     * para devolver una representación de cadena
      * formateada de los atributos del objeto `Prestamo`.
      * 
-     * @return El método `toString()` se sobrescribe para devolver una representación de cadena del objeto `Prestamo`,
-     * que incluye los valores de sus atributos como id, nombreUsuario, documento, idLibro, isbnLibro, tituloLibro,
-     * autorLibro y fechaPrestamo.
+     * @return El método `toString()` se sobrescribe para devolver una
+     *         representación de cadena del objeto `Prestamo`,
+     *         que incluye los valores de sus atributos como id, nombreUsuario,
+     *         documento, idLibro, isbnLibro, tituloLibro,
+     *         autorLibro y fechaPrestamo.
      */
     @Override
     public String toString() {

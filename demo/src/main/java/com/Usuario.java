@@ -8,7 +8,8 @@ public class Usuario {
     private String documento;
     private boolean esAdministrador;
 
-    public Usuario(int id, String nombreUsuario, String contrasena, String email, String documento, boolean esAdministrador) {
+    public Usuario(int id, String nombreUsuario, String contrasena, String email, String documento,
+            boolean esAdministrador) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.contrasena = contrasena;
@@ -65,14 +66,16 @@ public class Usuario {
     public void setEsAdministrador(boolean esAdministrador) {
         this.esAdministrador = esAdministrador;
     }
-   
 
-  /**
-     * El método `toString` en Java sobrescribe la implementación predeterminada para devolver una representación de cadena
+    /**
+     * El método `toString` en Java sobrescribe la implementación predeterminada
+     * para devolver una representación de cadena
      * formateada de los atributos del objeto `Prestamo`.
      * 
-     * @return El método `toString()` se sobrescribe para devolver una representación de cadena del objeto `Prestamo`,
-     * que incluye los valores de sus atributos como id, usuario, documento, libro y fecha de préstamo.
+     * @return El método `toString()` se sobrescribe para devolver una
+     *         representación de cadena del objeto `Prestamo`,
+     *         que incluye los valores de sus atributos como id, usuario, documento,
+     *         libro y fecha de préstamo.
      */
     @Override
     public String toString() {

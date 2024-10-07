@@ -10,16 +10,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-
-
 import java.util.logging.LogRecord;
 
 @SuppressWarnings("unused")
 /**
- * La clase `Libro` representa un libro con varios atributos y métodos para administrar información del libro.
+ * La clase `Libro` representa un libro con varios atributos y métodos para
+ * administrar información del libro.
  */
 /**
- * Esta clase de Java representa un libro con propiedades como id, título, autor, fecha de publicación,
+ * Esta clase de Java representa un libro con propiedades como id, título,
+ * autor, fecha de publicación,
  * número de páginas, disponibilidad, ISBN y descripción.
  */
 public class Libro {
@@ -36,30 +36,31 @@ public class Libro {
     private java.sql.Date fechaPrestamo;
     private Date fechaDevolucion;
 
-    
-    // Este es un constructor para la clase `Libro` en Java. Inicializa una nueva instancia de la clase `Libro`
-    // con los parámetros proporcionados: `titulo`, `autor`, `fechaPublicacion`, `numPaginas`,
+    // Este es un constructor para la clase `Libro` en Java. Inicializa una nueva
+    // instancia de la clase `Libro`
+    // con los parámetros proporcionados: `titulo`, `autor`, `fechaPublicacion`,
+    // `numPaginas`,
     // `disponible`, `isbn` y `descripcion`.
-    
-    
 
     // Constructor existente para cuando ya tenemos un ID (por ejemplo, al leer de
     // la BD)
 
-  // Este constructor particular en la clase `Libro` se utiliza cuando se crea una nueva instancia de un libro
-  // (`Libro`) objeto con un ID existente.
-  public Libro(int id, String titulo, String autor, int fechaPublicacion, int numPaginas, boolean disponible, String isbn, String descripcion, int cantidad) {
-    this.id = id;
-    this.titulo = titulo;
-    this.autor = autor;
-    this.fechaPublicacion = fechaPublicacion;
-    this.numPaginas = numPaginas;
-    this.disponible = disponible;
-    this.isbn = isbn;
-    this.descripcion = descripcion;
-    this.cantidad = cantidad;
-    this.fechaDevolucion = fechaDevolucion;
-    this.fechaPrestamo = fechaPrestamo;
+    // Este constructor particular en la clase `Libro` se utiliza cuando se crea una
+    // nueva instancia de un libro
+    // (`Libro`) objeto con un ID existente.
+    public Libro(int id, String titulo, String autor, int fechaPublicacion, int numPaginas, boolean disponible,
+            String isbn, String descripcion, int cantidad) {
+        this.id = id;
+        this.titulo = titulo;
+        this.autor = autor;
+        this.fechaPublicacion = fechaPublicacion;
+        this.numPaginas = numPaginas;
+        this.disponible = disponible;
+        this.isbn = isbn;
+        this.descripcion = descripcion;
+        this.cantidad = cantidad;
+        this.fechaDevolucion = fechaDevolucion;
+        this.fechaPrestamo = fechaPrestamo;
 
         // Asegurarse de que nextTempId siempre sea mayor que cualquier ID existente
         if (id >= nextTempId) {
@@ -68,27 +69,28 @@ public class Libro {
     }
 
     public int getCantidad() {
-    return cantidad;
-}
-public Date getFechaPrestamo() {
-    return fechaPrestamo;
-}
+        return cantidad;
+    }
 
-public void setFechaPrestamo(java.sql.Date date) {
-    this.fechaPrestamo = date;
-}
+    public Date getFechaPrestamo() {
+        return fechaPrestamo;
+    }
 
-public Date getFechaDevolucion() {
-    return fechaDevolucion;
-}
+    public void setFechaPrestamo(java.sql.Date date) {
+        this.fechaPrestamo = date;
+    }
 
-public void setFechaDevolucion(java.sql.Date date) {
-    this.fechaDevolucion = date;
-}
+    public Date getFechaDevolucion() {
+        return fechaDevolucion;
+    }
 
-public void setCantidad(int cantidad) {
-    this.cantidad = cantidad;
-}
+    public void setFechaDevolucion(java.sql.Date date) {
+        this.fechaDevolucion = date;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
 
     private static final Logger LOGGER = Logger.getLogger(Libro.class.getName());
 
@@ -204,37 +206,49 @@ public void setCantidad(int cantidad) {
         this.id = id;
     }
 
-   
-
-  /**
- * La función `aLibro` analiza una cadena para crear un objeto `Libro` con atributos específicos, maneja
- * errores de formato durante el proceso.
- * 
- * @param texto El método `aLibro` toma una entrada de cadena `texto` que representa una cadena separada
- * por comas que contiene información sobre un libro. La información se espera que esté en el siguiente
- * orden:
- * @return El método `aLibro` devuelve una instancia de la clase `Libro` si la entrada `texto` se analiza
- * correctamente y contiene 7 partes separadas por comas. Si el análisis es exitoso, se crea un nuevo
- * objeto `Libro` con los datos extraídos y se devuelve. Si hay errores durante el análisis (por ejemplo,
- * NumberFormatException), se registran mensajes de advertencia adecuados y se devuelve `null`.
- */
+    /**
+     * La función `aLibro` analiza una cadena para crear un objeto `Libro` con
+     * atributos específicos, maneja
+     * errores de formato durante el proceso.
+     * 
+     * @param texto El método `aLibro` toma una entrada de cadena `texto` que
+     *              representa una cadena separada
+     *              por comas que contiene información sobre un libro. La
+     *              información se espera que esté en el siguiente
+     *              orden:
+     * @return El método `aLibro` devuelve una instancia de la clase `Libro` si la
+     *         entrada `texto` se analiza
+     *         correctamente y contiene 7 partes separadas por comas. Si el análisis
+     *         es exitoso, se crea un nuevo
+     *         objeto `Libro` con los datos extraídos y se devuelve. Si hay errores
+     *         durante el análisis (por ejemplo,
+     *         NumberFormatException), se registran mensajes de advertencia
+     *         adecuados y se devuelve `null`.
+     */
     public String aTexto() {
         return id + "," + titulo + "," + autor + "," + fechaPublicacion + "," + numPaginas + "," + disponible + ","
                 + isbn + "," + descripcion;
     }
 
-/**
- * La función `aLibro` analiza una cadena para crear un objeto `Libro` con atributos específicos, maneja
- * errores de formato durante el proceso.
- * 
- * @param texto El método `aLibro` toma una entrada de cadena `texto` que representa una cadena separada
- * por comas que contiene información sobre un libro. La información se espera que esté en el siguiente
- * orden:
- * @return El método `aLibro` devuelve una instancia de la clase `Libro` si la entrada `texto` se analiza
- * correctamente y contiene 7 partes separadas por comas. Si el análisis es exitoso, se crea un nuevo
- * objeto `Libro` con los datos extraídos y se devuelve. Si hay errores durante el análisis (por ejemplo,
- * NumberFormatException), se registran mensajes de advertencia adecuados y se devuelve `null`.
- */
+    /**
+     * La función `aLibro` analiza una cadena para crear un objeto `Libro` con
+     * atributos específicos, maneja
+     * errores de formato durante el proceso.
+     * 
+     * @param texto El método `aLibro` toma una entrada de cadena `texto` que
+     *              representa una cadena separada
+     *              por comas que contiene información sobre un libro. La
+     *              información se espera que esté en el siguiente
+     *              orden:
+     * @return El método `aLibro` devuelve una instancia de la clase `Libro` si la
+     *         entrada `texto` se analiza
+     *         correctamente y contiene 7 partes separadas por comas. Si el análisis
+     *         es exitoso, se crea un nuevo
+     *         objeto `Libro` con los datos extraídos y se devuelve. Si hay errores
+     *         durante el análisis (por ejemplo,
+     *         NumberFormatException), se registran mensajes de advertencia
+     *         adecuados y se devuelve `null`.
+     */
     public static Libro aLibro(String texto) {
         String[] partes = texto.split(",");
         if (partes.length == 7) {
@@ -247,7 +261,8 @@ public void setCantidad(int cantidad) {
                 String isbn = partes[5];
                 String descripcion = partes[6];
 
-                return new Libro(numPaginas, titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion, numPaginas);
+                return new Libro(numPaginas, titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion,
+                        numPaginas);
             } catch (NumberFormatException e) {
                 LOGGER.warning("Error al convertir datos numéricos en la línea: " + texto);
                 LOGGER.warning("Mensaje de error: " + e.getMessage());
@@ -259,14 +274,15 @@ public void setCantidad(int cantidad) {
         return null;
     }
 
-  
-/**
- * El método `editarLibro` en Java permite al usuario actualizar varios atributos de un objeto libro
- * tomando entrada del usuario a través de la clase Scanner.
- * 
- * @param scanner El método `editarLibro` se utiliza para editar los detalles de un objeto libro tomando
- * entrada del usuario a través del objeto `Scanner`.
- */
+    /**
+     * El método `editarLibro` en Java permite al usuario actualizar varios
+     * atributos de un objeto libro
+     * tomando entrada del usuario a través de la clase Scanner.
+     * 
+     * @param scanner El método `editarLibro` se utiliza para editar los detalles de
+     *                un objeto libro tomando
+     *                entrada del usuario a través del objeto `Scanner`.
+     */
     public void editarLibro(Scanner scanner) {
         LOGGER.info("Información actual del libro:");
         LOGGER.info(this.toString());
@@ -305,10 +321,11 @@ public void setCantidad(int cantidad) {
         LOGGER.info("El libro ha sido editado exitosamente.");
     }
 
-   /**
- * La función `cambiarDisponibilidad` cambia el estado de disponibilidad de un libro y registra un mensaje
- * según sea necesario.
- */
+    /**
+     * La función `cambiarDisponibilidad` cambia el estado de disponibilidad de un
+     * libro y registra un mensaje
+     * según sea necesario.
+     */
     public void cambiarDisponibilidad() {
         if (this.disponible) {
             this.setDisponible(false);
@@ -319,9 +336,11 @@ public void setCantidad(int cantidad) {
         }
     }
 
-// La anotación `@Override` en Java se utiliza para indicar que un método se está sobreescribiendo desde una
-// clase padre o interfaz. En este caso, el método `toString()` se está sobreescribiendo en la clase `Libro`.
-//@Override
+    // La anotación `@Override` en Java se utiliza para indicar que un método se
+    // está sobreescribiendo desde una
+    // clase padre o interfaz. En este caso, el método `toString()` se está
+    // sobreescribiendo en la clase `Libro`.
+    // @Override
     @Override
     public String toString() {
         return "Libro [id=" + id + ", titulo=" + titulo + ", autor=" + autor + ", fechaPublicacion=" + fechaPublicacion
@@ -330,4 +349,3 @@ public void setCantidad(int cantidad) {
                 ", descripcion=" + descripcion + "]";
     }
 }
-

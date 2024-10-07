@@ -62,6 +62,7 @@ public class ConexionBD {
             pstmt.executeUpdate();
         }
     }
+
     public static boolean isLibroDisponible(int idLibro) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement statement = conn.prepareStatement("SELECT disponible FROM libros WHERE id = ?");
@@ -116,11 +117,11 @@ public class ConexionBD {
         return null;
     }
 
-
     public static List<Libro> buscarLibrosPrestados(String documento) throws SQLException {
         List<Libro> libros = new ArrayList<>();
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = false");
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = false");
         pstmt.setString(1, documento);
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
@@ -138,7 +139,8 @@ public class ConexionBD {
     public static List<Libro> buscarLibrosDevolvidos(String documento) throws SQLException {
         List<Libro> libros = new ArrayList<>();
         Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = true");
+        PreparedStatement pstmt = conn
+                .prepareStatement("SELECT * FROM prestamos WHERE documento = ? AND devuelto = true");
         pstmt.setString(1, documento);
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
@@ -251,7 +253,7 @@ public class ConexionBD {
             pstmt.setString(4, prestamo.getIsbnLibro());
             pstmt.setString(5, prestamo.getTituloLibro());
             pstmt.setString(6, prestamo.getAutorLibro());
-    
+
             // Asegurarse de que fecha_prestamo no sea null
             Timestamp fechaPrestamo;
             if (prestamo.getFechaPrestamo() == null) {
@@ -261,7 +263,7 @@ public class ConexionBD {
                 fechaPrestamo = new Timestamp(prestamo.getFechaPrestamo().getTime());
             }
             pstmt.setTimestamp(7, fechaPrestamo);
-    
+
             // Calcular y establecer fecha_vencimiento
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(fechaPrestamo.getTime());
@@ -269,14 +271,15 @@ public class ConexionBD {
             Timestamp fechaVencimiento = new Timestamp(cal.getTimeInMillis());
             pstmt.setTimestamp(8, fechaVencimiento);
             prestamo.setFechaVencimiento(fechaVencimiento);
-    
-            // El estado se establece automáticamente como 'activo' por el valor por defecto en la base de datos
+
+            // El estado se establece automáticamente como 'activo' por el valor por defecto
+            // en la base de datos
             pstmt.setString(9, "activo");
-    
+
             // Ejecutar la inserción
             int filasAfectadas = pstmt.executeUpdate();
             System.out.println("Filas afectadas al crear préstamo: " + filasAfectadas);
-    
+
             // Obtener el ID generado
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -294,12 +297,13 @@ public class ConexionBD {
     public static void actualizarDisponibilidadLibro(int idLibro, boolean disponible) throws SQLException {
         String query = "UPDATE libros SET disponible = ? WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setBoolean(1, disponible);
             pstmt.setInt(2, idLibro);
             pstmt.executeUpdate();
         }
     }
+
     /**
      * Verifica si el documento existe en la base de datos
      * 
@@ -404,8 +408,7 @@ public class ConexionBD {
                             rs.getBoolean("disponible"),
                             rs.getString("isbn"),
                             "" // descripcion no incluida
-                            , 0
-                    );
+                            , 0);
                     resultados.add(libro);
                 }
             }
@@ -419,22 +422,21 @@ public class ConexionBD {
         // Por ejemplo:
         String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, username);
             pstmt.setString(2, password);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return new Usuario(
-                        rs.getInt("id"),
-                        rs.getString("nombre_usuario"),
-                        rs.getString("contrasena"),
-             
-                        rs.getString("email"),
-                        rs.getString("documento"),
-                        rs.getBoolean("es_administrador")
-                    );
+                            rs.getInt("id"),
+                            rs.getString("nombre_usuario"),
+                            rs.getString("contrasena"),
+
+                            rs.getString("email"),
+                            rs.getString("documento"),
+                            rs.getBoolean("es_administrador"));
                 }
             }
         }
@@ -452,184 +454,187 @@ public class ConexionBD {
      * @return Un objeto Prestamo si se encuentra un préstamo activo que coincide
      *         con los parámetros, null en caso contrario.
      */
-    public static Prestamo buscarPrestamoActivo(String nombreUsuario, String documento, int idLibro) throws SQLException {
-    String query = "SELECT * FROM prestamos WHERE nombre_usuario = ? AND documento = ? AND id_libro = ? AND fecha_devolucion IS NULL";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-        pstmt.setString(1, nombreUsuario);
-        pstmt.setString(2, documento);
-        pstmt.setInt(3, idLibro);
-        try (ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return new Prestamo(
-                    rs.getInt("id"),
-                    rs.getString("nombre_usuario"),
-                    rs.getString("documento"),
-                    rs.getInt("id_libro"),
-                    rs.getString("isbn_libro"),
-                    rs.getString("titulo_libro"),
-                    rs.getString("autor_libro"),
-                    rs.getTimestamp("fecha_prestamo"),
-                    rs.getBoolean("devuelto") // <--- Cambia a getTimestamp
-                
-                );
+    public static Prestamo buscarPrestamoActivo(String nombreUsuario, String documento, int idLibro)
+            throws SQLException {
+        String query = "SELECT * FROM prestamos WHERE nombre_usuario = ? AND documento = ? AND id_libro = ? AND fecha_devolucion IS NULL";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, nombreUsuario);
+            pstmt.setString(2, documento);
+            pstmt.setInt(3, idLibro);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Prestamo(
+                            rs.getInt("id"),
+                            rs.getString("nombre_usuario"),
+                            rs.getString("documento"),
+                            rs.getInt("id_libro"),
+                            rs.getString("isbn_libro"),
+                            rs.getString("titulo_libro"),
+                            rs.getString("autor_libro"),
+                            rs.getTimestamp("fecha_prestamo"),
+                            rs.getBoolean("devuelto") // <--- Cambia a getTimestamp
+
+                    );
+                }
             }
         }
+        return null;
     }
-    return null;
-}
+
     /**
      * Registra una devolución en la base de datos con el ID del préstamo y la fecha
      * actual como fecha de devolución.
      * 
      * @param idPrestamo El ID del préstamo que se va a registrar como devuelto.
      */
-   public static boolean registrarDevolucion(int idPrestamo) throws SQLException {
-    Connection conn = null;
-    try {
-        conn = getConnection();
-        conn.setAutoCommit(false);
+    public static boolean registrarDevolucion(int idPrestamo) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
 
-        // Obtener la información del préstamo, incluyendo el id_libro
-        String getPrestamo = "SELECT id_libro FROM prestamos WHERE id = ? AND devuelto = false";
-        int idLibro;
-        try (PreparedStatement pstmt = conn.prepareStatement(getPrestamo)) {
-            pstmt.setInt(1, idPrestamo);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    idLibro = rs.getInt("id_libro");
-                } else {
-                    System.err.println("No se encontró un préstamo activo con el ID proporcionado.");
+            // Obtener la información del préstamo, incluyendo el id_libro
+            String getPrestamo = "SELECT id_libro FROM prestamos WHERE id = ? AND devuelto = false";
+            int idLibro;
+            try (PreparedStatement pstmt = conn.prepareStatement(getPrestamo)) {
+                pstmt.setInt(1, idPrestamo);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        idLibro = rs.getInt("id_libro");
+                    } else {
+                        System.err.println("No se encontró un préstamo activo con el ID proporcionado.");
+                        return false;
+                    }
+                }
+            }
+
+            // Marcar el préstamo como devuelto y establecer la fecha de devolución
+            String updatePrestamo = "UPDATE prestamos SET devuelto = true, fecha_devolucion = ? WHERE id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updatePrestamo)) {
+                pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                pstmt.setInt(2, idPrestamo);
+                int filasAfectadas = pstmt.executeUpdate();
+                if (filasAfectadas == 0) {
+                    System.err.println("No se pudo actualizar el préstamo, posiblemente no existe.");
                     return false;
                 }
             }
-        }
 
-        // Marcar el préstamo como devuelto y establecer la fecha de devolución
-        String updatePrestamo = "UPDATE prestamos SET devuelto = true, fecha_devolucion = ? WHERE id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(updatePrestamo)) {
-            pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-            pstmt.setInt(2, idPrestamo);
-            int filasAfectadas = pstmt.executeUpdate();
-            if (filasAfectadas == 0) {
-                System.err.println("No se pudo actualizar el préstamo, posiblemente no existe.");
-                return false;
+            // Actualizar la disponibilidad del libro usando el ID del libro
+            String updateLibro = "UPDATE libros SET disponible = true WHERE id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateLibro)) {
+                pstmt.setInt(1, idLibro);
+                int filasAfectadas = pstmt.executeUpdate();
+                if (filasAfectadas == 0) {
+                    System.err.println("No se pudo actualizar la disponibilidad del libro.");
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            conn.commit();
+            System.out.println("Devolución registrada exitosamente. Libro ID: " + idLibro);
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            System.err.println("Error al registrar la devolución: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
             }
         }
+        return false;
+    }
 
-        // Actualizar la disponibilidad del libro usando el ID del libro
-        String updateLibro = "UPDATE libros SET disponible = true WHERE id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(updateLibro)) {
-            pstmt.setInt(1, idLibro);
-            int filasAfectadas = pstmt.executeUpdate();
-            if (filasAfectadas == 0) {
-                System.err.println("No se pudo actualizar la disponibilidad del libro.");
-                conn.rollback();
-                return false;
+    public static List<Map<String, Object>> buscarUsuarioYLibrosPrestados(String nombreUsuario, String documento)
+            throws SQLException {
+        List<Map<String, Object>> resultados = new ArrayList<>();
+        String query = "SELECT p.id, p.id_libro, l.titulo, l.isbn " +
+                "FROM prestamos p " +
+                "JOIN libros l ON p.id_libro = l.id " +
+                "WHERE p.nombre_usuario = ? AND p.documento = ? AND p.devuelto = false";
+
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, nombreUsuario);
+            pstmt.setString(2, documento);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> libro = new HashMap<>();
+                    libro.put("id_prestamo", rs.getInt("id"));
+                    libro.put("id_libro", rs.getInt("id_libro"));
+                    libro.put("titulo", rs.getString("titulo"));
+                    libro.put("isbn", rs.getString("isbn"));
+                    resultados.add(libro);
+                }
             }
         }
+        return resultados;
+    }
 
-        conn.commit();
-        System.out.println("Devolución registrada exitosamente. Libro ID: " + idLibro);
-        return true;
-    } catch (SQLException e) {
-        if (conn != null) {
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
-        System.err.println("Error al registrar la devolución: " + e.getMessage());
-    } finally {
-        if (conn != null) {
-            conn.setAutoCommit(true);
-            conn.close();
-        }
-    }
-    return false;
-}
-    
-
-public static List<Map<String, Object>> buscarUsuarioYLibrosPrestados(String nombreUsuario, String documento) throws SQLException {
-    List<Map<String, Object>> resultados = new ArrayList<>();
-    String query = "SELECT p.id, p.id_libro, l.titulo, l.isbn " +
-                   "FROM prestamos p " +
-                   "JOIN libros l ON p.id_libro = l.id " +
-                   "WHERE p.nombre_usuario = ? AND p.documento = ? AND p.devuelto = false";
-    
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-        pstmt.setString(1, nombreUsuario);
-        pstmt.setString(2, documento);
-        
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                Map<String, Object> libro = new HashMap<>();
-                libro.put("id_prestamo", rs.getInt("id"));
-                libro.put("id_libro", rs.getInt("id_libro"));
-                libro.put("titulo", rs.getString("titulo"));
-                libro.put("isbn", rs.getString("isbn"));
-                resultados.add(libro);
-            }
-        }
-    }
-    return resultados;
-}
-public static void actualizarEstadoPrestamos() throws SQLException {
-    String query = "UPDATE prestamos SET estado = 'vencido' WHERE fecha_vencimiento < CURDATE() AND estado = 'activo'";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-        pstmt.executeUpdate();
-    }
-}
-
-public static boolean aplazarPrestamo(int idPrestamo) throws SQLException {
-    String query = "UPDATE prestamos SET fecha_vencimiento = DATE_ADD(fecha_vencimiento, INTERVAL 15 DAY), numero_aplazamientos = numero_aplazamientos + 1 WHERE id = ? AND numero_aplazamientos < 2 AND estado = 'activo'";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-        pstmt.setInt(1, idPrestamo);
-        int rowsAffected = pstmt.executeUpdate();
-        return rowsAffected > 0;
-    }
-}
-public static void crearLibrosMultiples(Libro libro) throws SQLException {
-    String query = "INSERT INTO libros (titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(query)) {
-        for (int i = 0; i < libro.getCantidad(); i++) {
-            pstmt.setString(1, libro.getTitulo());
-            pstmt.setString(2, libro.getAutor());
-            pstmt.setInt(3, libro.getfechaPublicacion());
-            pstmt.setInt(4, libro.getNumPaginas());
-            pstmt.setBoolean(5, libro.isDisponible());
-            pstmt.setString(6, libro.getIsbn());
-            pstmt.setString(7, libro.getDescripcion());
+    public static void actualizarEstadoPrestamos() throws SQLException {
+        String query = "UPDATE prestamos SET estado = 'vencido' WHERE fecha_vencimiento < CURDATE() AND estado = 'activo'";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.executeUpdate();
         }
     }
-}
 
-public static List<Usuario> obtenerTodosLosUsuarios() throws SQLException {
-    String query = "SELECT * FROM usuarios";
-    List<Usuario> usuarios = new ArrayList<>();
-
-    try (Connection conn = getConnection();
-         Statement stmt = conn.createStatement();
-         ResultSet rs = stmt.executeQuery(query)) {
-        while (rs.next()) {
-            Usuario usuario = new Usuario(
-                    rs.getInt("id"),
-                    rs.getString("nombre_usuario"),
-                    rs.getString("contrasena"),
-                    rs.getString("email"),
-                    rs.getString("documento"),
-                    rs.getBoolean("es_administrador")
-            );
-            usuarios.add(usuario);
+    public static boolean aplazarPrestamo(int idPrestamo) throws SQLException {
+        String query = "UPDATE prestamos SET fecha_vencimiento = DATE_ADD(fecha_vencimiento, INTERVAL 15 DAY), numero_aplazamientos = numero_aplazamientos + 1 WHERE id = ? AND numero_aplazamientos < 2 AND estado = 'activo'";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, idPrestamo);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
-    return usuarios;
-}
+
+    public static void crearLibrosMultiples(Libro libro) throws SQLException {
+        String query = "INSERT INTO libros (titulo, autor, fechaPublicacion, numPaginas, disponible, isbn, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+            for (int i = 0; i < libro.getCantidad(); i++) {
+                pstmt.setString(1, libro.getTitulo());
+                pstmt.setString(2, libro.getAutor());
+                pstmt.setInt(3, libro.getfechaPublicacion());
+                pstmt.setInt(4, libro.getNumPaginas());
+                pstmt.setBoolean(5, libro.isDisponible());
+                pstmt.setString(6, libro.getIsbn());
+                pstmt.setString(7, libro.getDescripcion());
+                pstmt.executeUpdate();
+            }
+        }
+    }
+
+    public static List<Usuario> obtenerTodosLosUsuarios() throws SQLException {
+        String query = "SELECT * FROM usuarios";
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try (Connection conn = getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                Usuario usuario = new Usuario(
+                        rs.getInt("id"),
+                        rs.getString("nombre_usuario"),
+                        rs.getString("contrasena"),
+                        rs.getString("email"),
+                        rs.getString("documento"),
+                        rs.getBoolean("es_administrador"));
+                usuarios.add(usuario);
+            }
+        }
+        return usuarios;
+    }
 
 }
