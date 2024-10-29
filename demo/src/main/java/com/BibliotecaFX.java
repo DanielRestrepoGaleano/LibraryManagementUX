@@ -125,7 +125,7 @@ if (dukeImageView != null && fatimaImageView != null) {
     });
     
     fatimaLink.setOnAction(e -> {
-        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+        hostServices.showDocument("https://iefatimanutibara.edu.co/"); 
     });
     
     imageContainer.getChildren().addAll(dukeLink, fatimaLink);
@@ -140,7 +140,7 @@ if (dukeImageView != null && fatimaImageView != null) {
         hostServices.showDocument("https://github.com/DanielRestrepoGaleano");
     });
     escuelaLink.setOnAction(e -> {
-        hostServices.showDocument("https://iefatimanutibara.edu.co/"); // Reemplaza con la URL de tu escuela
+        hostServices.showDocument("https://iefatimanutibara.edu.co/"); 
     });
     
     imageContainer.getChildren().addAll(githubLink, escuelaLink);
